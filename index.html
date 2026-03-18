@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kith Consulting | ESG & Climate Strategy for Ridgepoint Capital</title>
+<style>
+  :root {
+    --dark: #1A1F36;
+    --dark-card: #222844;
+    --dark-border: #2D3359;
+    --accent: #4DB8A4;
+    --accent-dark: #3A9485;
+    --light-bg: #F7F8FA;
+    --white: #FFFFFF;
+    --text-dark: #1A1F36;
+    --text-mid: #4B5563;
+    --text-light: #6B7280;
+    --text-muted: #9CA3AF;
+    --card-border: #E5E7EB;
+    --warning: #F59E0B;
+    --warning-bg: #FFF7ED;
+    --warning-border: #FED7AA;
+    --success-bg: #ECFDF5;
+    --success-border: #A7F3D0;
+    --success: #059669;
+    --danger: #DC2626;
+    --amber: #D97706;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+    background: var(--light-bg);
+    line-height: 1.6;
+  }
+
+  .logo { font-size: 1rem; }
+  .logo-bold { font-weight: 700; }
+  .logo-slash { color: var(--accent); }
+  .logo-light { color: var(--text-muted); }
+  .logo-white .logo-bold { color: var(--white); }
+  .logo-white .logo-light { color: var(--text-muted); }
+
+  /* Hero / Title */
+  .hero {
+    background: var(--dark);
+    color: var(--white);
+    text-align: center;
+    padding: 5rem 2rem 4rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .hero h1 { font-size: 2.8rem; font-weight: 300; margin: 1.5rem 0 0.25rem; }
+  .hero h1 strong { font-weight: 700; }
+  .hero .subtitle { color: var(--accent); font-size: 1.15rem; margin-bottom: 2rem; }
+  .hero .accent-line { width: 60px; height: 3px; background: var(--accent); margin: 0 auto 1.5rem; }
+  .hero .meta { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* Section wrapper */
+  .section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-dark { background: var(--dark); color: var(--white); }
+  .section-dark-full { background: var(--dark); color: var(--white); padding: 5rem 2rem; }
+  .section-light { background: var(--light-bg); }
+
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-dark .section-label,
+  .section-dark-full .section-label { color: var(--accent); }
+
+  h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem; }
+  h2 .accent { color: var(--accent); }
+  .section-subtitle { color: var(--text-mid); font-size: 1rem; margin-bottom: 2rem; max-width: 800px; }
+  .section-dark .section-subtitle,
+  .section-dark-full .section-subtitle { color: var(--text-muted); }
+
+  /* Cards */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem; }
+  .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.875rem; color: var(--text-mid); }
+
+  /* POV cards */
+  .pov-cards { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* Stat boxes */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 2rem 0; }
+  .stat-box {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-box .stat-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 0.5rem; }
+  .stat-box .stat-num { font-size: 2rem; font-weight: 700; color: var(--white); }
+  .stat-box .stat-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  /* Hypothesis grid */
+  .hyp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .hyp-card .hyp-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 0.25rem; }
+  .hyp-card h3 { font-size: 0.95rem; }
+
+  /* Timeline */
+  .timeline-bar { display: grid; grid-template-columns: 2fr 2fr 2fr 1.5fr; gap: 4px; margin-bottom: 2rem; }
+  .timeline-phase {
+    background: var(--accent);
+    color: var(--white);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+  .timeline-phase .phase-weeks { font-size: 0.65rem; letter-spacing: 1.5px; opacity: 0.85; }
+  .timeline-phase .phase-name { font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem; }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .data-table th {
+    background: var(--dark);
+    color: var(--white);
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+  .data-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--card-border); }
+  .data-table tr:nth-child(even) td { background: #F8FAFC; }
+  .badge-primary { color: var(--success); font-weight: 700; }
+  .badge-secondary { color: var(--warning); font-weight: 700; }
+
+  /* Phase divider */
+  .phase-divider {
+    background: var(--dark);
+    color: var(--white);
+    padding: 4rem 2rem;
+  }
+  .phase-divider .phase-num { font-size: 4.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .phase-divider h2 { font-size: 2.2rem; margin: 0.5rem 0 0.25rem; }
+  .phase-divider .phase-weeks-label { color: var(--accent); font-size: 1rem; margin-bottom: 1rem; }
+  .phase-divider p { color: var(--text-muted); font-size: 1rem; max-width: 700px; }
+
+  /* Phase detail */
+  .phase-detail { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; }
+  .phase-detail h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .phase-detail p { font-size: 0.875rem; color: var(--text-mid); margin-bottom: 1rem; }
+
+  .deliverables-card {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .deliverables-card .card-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 0.75rem; }
+  .deliverables-card ul { list-style: none; }
+  .deliverables-card li { font-size: 0.85rem; padding: 0.2rem 0; padding-left: 1.2rem; position: relative; }
+  .deliverables-card li::before { content: "\2192"; position: absolute; left: 0; color: var(--accent); }
+
+  .data-card {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .data-card .card-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--warning); margin-bottom: 0.75rem; }
+  .data-card ul { list-style: disc; padding-left: 1.2rem; }
+  .data-card li { font-size: 0.85rem; padding: 0.15rem 0; }
+
+  /* Meridian highlight */
+  .meridian-highlight {
+    background: var(--dark);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  .meridian-highlight .card-label { color: var(--accent); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 0.5rem; }
+  .meridian-highlight p { color: #D1D5DB; font-size: 0.875rem; margin-bottom: 0.5rem; }
+  .meridian-highlight ul { list-style: none; }
+  .meridian-highlight li { font-size: 0.85rem; color: #D1D5DB; padding: 0.15rem 0; padding-left: 1.2rem; position: relative; }
+  .meridian-highlight li::before { content: "\2192"; position: absolute; left: 0; color: var(--accent); }
+
+  /* Risk table */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 2rem; }
+  .risk-table th { background: var(--dark); color: var(--white); padding: 0.6rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 1px; }
+  .risk-table td { padding: 0.75rem; border-bottom: 1px solid var(--card-border); vertical-align: top; }
+  .risk-table tr:nth-child(even) td { background: #F8FAFC; }
+  .risk-table .risk-name { font-weight: 700; color: var(--text-dark); }
+  .risk-table .impact-high { color: var(--danger); font-weight: 700; }
+  .risk-table .impact-med-high { color: var(--amber); font-weight: 700; }
+  .risk-table .impact-med { color: var(--warning); font-weight: 700; }
+  .risk-table .impact-low { color: var(--success); font-weight: 700; }
+
+  /* Team */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .team-card {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .team-avatar {
+    width: 80px; height: 80px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem; font-weight: 700; color: var(--white);
+  }
+  .team-card h3 { font-size: 1.1rem; margin-bottom: 0.15rem; }
+  .team-card .team-title { color: var(--accent); font-size: 0.85rem; margin-bottom: 0.75rem; }
+  .team-card .team-bio { font-size: 0.8rem; color: var(--text-mid); }
+
+  /* Pricing */
+  .pricing-layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; align-items: start; }
+  .pricing-list { list-style: none; }
+  .pricing-list li {
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .pricing-list .check { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-list strong { color: var(--text-dark); }
+
+  .price-card {
+    background: var(--dark);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .price-card .price-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; }
+  .price-card .price-amount { font-size: 2.8rem; font-weight: 700; }
+  .price-card .price-type { color: var(--text-muted); font-size: 0.9rem; }
+  .price-card .price-terms { font-size: 0.85rem; margin-top: 1rem; text-align: left; }
+  .price-card .price-terms strong { color: var(--white); }
+
+  .exclusions-card {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .exclusions-card .card-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; }
+  .exclusions-card p { font-size: 0.8rem; color: var(--text-mid); }
+
+  /* About */
+  .about-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .about-stat {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .about-stat .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+  .about-stat .stat-label { font-size: 0.65rem; letter-spacing: 2px; color: var(--text-muted); }
+
+  .about-props { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .about-prop {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    border-top: 3px solid var(--accent);
+  }
+  .about-prop h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .about-prop p { font-size: 0.8rem; color: var(--text-mid); }
+
+  .engagements { margin-top: 1.5rem; }
+  .engagements h3 { font-size: 1rem; margin-bottom: 0.75rem; }
+  .engagements li { font-size: 0.85rem; color: var(--text-mid); margin-bottom: 0.35rem; }
+
+  /* CTA / Next Steps */
+  .cta {
+    background: var(--dark);
+    color: var(--white);
+    text-align: center;
+    padding: 5rem 2rem;
+  }
+  .cta h2 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .cta .accent-line { width: 60px; height: 3px; background: var(--accent); margin: 1.5rem auto; }
+
+  .steps { max-width: 600px; margin: 0 auto 2rem; text-align: left; }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem; flex-shrink: 0;
+  }
+  .step-text { font-size: 1rem; }
+
+  .cta .contact { color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem; }
+
+  /* Keeps card */
+  .keeps-card {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .keeps-card .card-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--success); margin-bottom: 0.75rem; }
+  .keeps-card ul { list-style: none; }
+  .keeps-card li { font-size: 0.85rem; padding: 0.2rem 0; padding-left: 1.2rem; position: relative; }
+  .keeps-card li::before { content: "\2192"; position: absolute; left: 0; color: var(--success); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 1.8rem; }
+    .stat-grid, .hyp-grid, .team-grid, .about-stats, .about-props { grid-template-columns: 1fr; }
+    .timeline-bar { grid-template-columns: 1fr; }
+    .phase-detail { grid-template-columns: 1fr; }
+    .pricing-layout { grid-template-columns: 1fr; }
+    h2 { font-size: 1.5rem; }
+  }
+
+  /* Assumptions */
+  .assumptions { margin-top: 1rem; }
+  .assumptions h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+  .assumptions li { font-size: 0.85rem; color: var(--text-mid); margin-bottom: 0.25rem; }
+
+  /* Phase 3 split layout */
+  .phase3-top { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .phase3-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  /* Footer */
+  footer { background: var(--dark); color: var(--text-muted); text-align: center; padding: 2rem; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Hero -->
+<section class="hero">
+  <div class="logo logo-white" style="font-size:1.2rem;">
+    <span class="logo-bold">kith</span><span class="logo-slash"> / </span><span class="logo-light">consulting</span>
+  </div>
+  <h1>ESG &amp; Climate Strategy<br>for <strong>Ridgepoint Capital</strong></h1>
+  <p class="subtitle">A Six-Week Engagement Proposal</p>
+  <div class="accent-line"></div>
+  <p class="meta">Prepared for Sarah Mitchell, COO<br>March 2026 &middot; Confidential</p>
+</section>
+
+<!-- SLIDE 2: Point of View -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">POINT OF VIEW</p>
+    <h2>Our point of view <span class="accent">on Ridgepoint's ESG position</span></h2>
+    <p class="section-subtitle">Based on our review of your portfolio structure and LP reporting cadence, we believe three things are true.</p>
+
+    <div class="pov-cards">
+      <div class="card">
+        <div class="card-num">01</div>
+        <h3>Meridian's ESG gap is your most time-sensitive value creation lever</h3>
+        <p>With Meridian in exit prep, ESG positioning isn't a compliance exercise &mdash; it's a multiple expansion opportunity. Business Services acquirers are increasingly screening for credible ESG narratives. A 6-month head start on this positions Meridian ahead of comparable assets.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <h3>Your portfolio has ESG data &mdash; it's just not structured for LP reporting or exit diligence</h3>
+        <p>Utility bills, fleet records, procurement data &mdash; the raw inputs for a GHG inventory already exist in your portcos' finance systems. The gap isn't data collection, it's data architecture. This engagement structures what you have into a system that compounds.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <h3>Previous ESG engagements failed because they weren't built for PE operating rhythms</h3>
+        <p>Generic sustainability consulting produces reports that sit on shelves. PE needs deliverables that plug into operating reviews, IC memos, and LP quarterly updates &mdash; usable from day one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: Meridian Opportunity -->
+<section class="section-dark-full">
+  <div class="section-inner">
+    <p class="section-label">THE MERIDIAN OPPORTUNITY</p>
+    <h2>ESG positioning is worth <span class="accent">real money</span> at exit.</h2>
+    <p class="section-subtitle">Business Services M&amp;A buyers are weighting ESG in due diligence. A credible emissions baseline, reduction trajectory, and governance narrative can expand the buyer pool and support multiple premium.</p>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-label">FUND I</div>
+        <div class="stat-num">Exit Prep</div>
+        <div class="stat-desc">Active sale process timeline makes ESG positioning time-critical</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">BUYER SCREENING</div>
+        <div class="stat-num">73%</div>
+        <div class="stat-desc">of PE acquirers now include ESG criteria in due diligence (PwC 2025)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">NARRATIVE GAP</div>
+        <div class="stat-num">6 mo.</div>
+        <div class="stat-desc">Minimum lead time to build a credible ESG story before buyer engagement</div>
+      </div>
+    </div>
+
+    <p style="font-style:italic; color: var(--white); font-size: 0.95rem;">This engagement produces a Meridian-specific ESG exit readiness assessment as a dedicated workstream &mdash; not a line item buried in Phase 3.</p>
+  </div>
+</section>
+
+<!-- SLIDE 4: Strategic Hypotheses -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">STRATEGIC HYPOTHESES</p>
+    <h2>What we believe <span class="accent">and will pressure-test</span></h2>
+    <p class="section-subtitle">We don't start with generic questions. We start with hypotheses shaped by your portfolio &mdash; and spend six weeks proving or disproving them.</p>
+
+    <div class="hyp-grid">
+      <div class="card hyp-card">
+        <div class="hyp-label">HYPOTHESIS 1</div>
+        <h3>Meridian's ESG gap is costing you 0.5-1.0x at exit</h3>
+        <p>We believe a credible ESG narrative will expand Meridian's buyer pool and support premium positioning. We'll quantify this against comparable transactions.</p>
+      </div>
+      <div class="card hyp-card">
+        <div class="hyp-label">HYPOTHESIS 2</div>
+        <h3>80% of your emissions data already exists in finance systems</h3>
+        <p>We expect utility bills, fleet records, and procurement data to cover Scope 1 and 2 with minimal new collection. The real work is structuring it &mdash; not finding it.</p>
+      </div>
+      <div class="card hyp-card">
+        <div class="hyp-label">HYPOTHESIS 3</div>
+        <h3>Sterling and Clearview have 3-5 ESG initiatives that pay for themselves</h3>
+        <p>In industrial tech and environmental services, emissions reduction often maps directly to cost savings. We'll identify initiatives with IRR &gt; 15% and payback &lt; 24 months.</p>
+      </div>
+      <div class="card hyp-card">
+        <div class="hyp-label">HYPOTHESIS 4</div>
+        <h3>Your portco teams can maintain this without ongoing consulting spend</h3>
+        <p>If we build the right playbooks and CC knowledge architecture, your portco ESG contacts can execute quarterly updates in hours, not weeks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: Approach -->
+<section class="section-light" style="background: var(--white);">
+  <div class="section">
+    <p class="section-label">APPROACH</p>
+    <h2>Approach <span class="accent">at a glance</span></h2>
+    <p class="section-subtitle">Four phases over six weeks. Each phase produces tangible deliverables. No phase exists solely to set up the next one.</p>
+
+    <div class="timeline-bar">
+      <div class="timeline-phase"><div class="phase-weeks">WEEKS 1-2</div><div class="phase-name">Discovery &amp;<br>Data Audit</div></div>
+      <div class="timeline-phase"><div class="phase-weeks">WEEKS 2-4</div><div class="phase-name">Carbon Baseline &amp;<br>Materiality</div></div>
+      <div class="timeline-phase"><div class="phase-weeks">WEEKS 4-5</div><div class="phase-name">Roadmaps &amp;<br>Exit Readiness</div></div>
+      <div class="timeline-phase"><div class="phase-weeks">WEEK 6</div><div class="phase-name">System Build &amp;<br>Transfer</div></div>
+    </div>
+
+    <h3 style="margin-bottom: 1rem;">Portfolio Company Prioritization</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>COMPANY</th><th>SECTOR</th><th>FUND</th><th>STATUS</th><th>PRIORITY</th><th>STRATEGIC RATIONALE</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Meridian Business Solutions</strong></td><td>Business Services</td><td>I</td><td>Exit prep</td><td class="badge-primary">Primary</td><td>Exit value at stake &mdash; ESG positioning directly impacts buyer perception and multiple</td></tr>
+        <tr><td><strong>Clearview Environmental Services</strong></td><td>Environmental Services</td><td>II</td><td>On plan</td><td class="badge-primary">Primary</td><td>ESG is core to value proposition &mdash; highest natural materiality and LP narrative fit</td></tr>
+        <tr><td><strong>Sterling Precision Manufacturing</strong></td><td>Industrial Technology</td><td>I</td><td>Strong</td><td class="badge-primary">Primary</td><td>Material Scope 1/2 footprint &mdash; largest absolute emissions reduction opportunity</td></tr>
+        <tr><td><strong>Patriot Staffing Solutions</strong></td><td>Business Services</td><td>II</td><td>Below plan</td><td class="badge-secondary">Secondary</td><td>ESG improvements map to operational efficiency gains in the value creation plan</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Phase 1 Divider -->
+<section class="phase-divider">
+  <div class="section-inner">
+    <div class="phase-num">01</div>
+    <h2>Discovery &amp; Data Audit</h2>
+    <div class="phase-weeks-label">Weeks 1-2</div>
+    <p>Understand what data exists, what doesn't, and where the gaps are &mdash; at both the fund and portfolio company level. Establish the baseline everything else builds on.</p>
+  </div>
+</section>
+
+<!-- Phase 1 Detail -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">PHASE 1 DETAIL</p>
+    <h2>Discovery &amp; Data Audit</h2>
+    <p class="section-subtitle">Kickoff meetings with fund team and priority portco ESG contacts. Comprehensive audit of existing data, systems, and reporting.</p>
+
+    <div class="phase-detail">
+      <div>
+        <h3>What We Do</h3>
+        <p>Conduct structured discovery sessions with Sarah and each portco ESG contact. Map all existing ESG data sources &mdash; utility bills, waste manifests, fleet records, operational data already tracked in finance systems.</p>
+        <p>Perform a gap analysis against GHG Protocol, TCFD, and LP reporting requirements. Identify what's measurable today vs. what requires estimation or new data collection.</p>
+        <h3>How CC Accelerates This</h3>
+        <p>Our CC environment ingests and structures raw data as we receive it. By the end of Week 2, your data is organized in a reference architecture &mdash; not sitting in email attachments.</p>
+      </div>
+      <div>
+        <div class="deliverables-card">
+          <div class="card-label">DELIVERABLES</div>
+          <ul>
+            <li>Fund-level ESG data quality scorecard</li>
+            <li>Per-portco data inventory and gap assessment</li>
+            <li>Prioritized data collection plan with owners</li>
+            <li>Structured reference data library in CC environment</li>
+          </ul>
+        </div>
+        <div class="data-card">
+          <div class="card-label">DATA WE NEED FROM YOU</div>
+          <ul>
+            <li>Utility bills (electricity, gas) &mdash; 12 months per portco</li>
+            <li>Fleet / vehicle records if applicable</li>
+            <li>Waste and recycling manifests</li>
+            <li>Existing ESG reports or LP questionnaire responses</li>
+            <li>Value creation plans for priority portcos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 2 Divider -->
+<section class="phase-divider">
+  <div class="section-inner">
+    <div class="phase-num">02</div>
+    <h2>Carbon Baseline &amp; Materiality</h2>
+    <div class="phase-weeks-label">Weeks 2-4</div>
+    <p>Build GHG Protocol-aligned emissions baselines for each priority company. Full Scope 1 and 2 inventories. Screening-level Scope 3 to identify material categories for deeper analysis.</p>
+  </div>
+</section>
+
+<!-- Phase 2 Detail -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">PHASE 2 DETAIL</p>
+    <h2>Carbon Baseline &amp; Materiality</h2>
+    <p class="section-subtitle">Full Scope 1 &amp; 2 inventories. Screening-level Scope 3. Materiality assessment mapped to financial outcomes, not generic ESG taxonomies.</p>
+
+    <div class="phase-detail">
+      <div>
+        <h3>What We Do</h3>
+        <p>Calculate emissions baselines using GHG Protocol methodology. Full Scope 1 (direct) and Scope 2 (purchased energy) inventories for all three primary portcos.</p>
+        <p>Screening-level Scope 3 assessment using spend-based methodology to identify material categories by sector &mdash; supply chain for Sterling, employee commuting for Patriot &mdash; flagging categories for deeper quantification in a follow-on phase.</p>
+        <p>Materiality assessment for each company mapping ESG topics to financial drivers: revenue risk, cost exposure, regulatory liability, and buyer/LP expectations.</p>
+        <h3>Why This Matters for PE</h3>
+        <p>The materiality assessment tells you where ESG investment moves the needle on valuation &mdash; and where it doesn't. This is what separates an ESG report from a value creation tool.</p>
+      </div>
+      <div>
+        <div class="deliverables-card">
+          <div class="card-label">DELIVERABLES</div>
+          <ul>
+            <li>Emissions baseline per portco (Scope 1 &amp; 2 full)</li>
+            <li>Scope 3 screening assessment by category</li>
+            <li>Portfolio-level emissions summary for fund reporting</li>
+            <li>Materiality matrix per portco &mdash; ranked by financial impact</li>
+            <li>Methodology documentation (reusable for future updates)</li>
+          </ul>
+        </div>
+        <div class="data-card">
+          <div class="card-label">DATA WE NEED FROM YOU</div>
+          <ul>
+            <li>Facility-level energy consumption data</li>
+            <li>Headcount and office square footage by location</li>
+            <li>Supply chain / procurement spend data (for Scope 3)</li>
+            <li>Business travel records if available</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 3 Divider -->
+<section class="phase-divider">
+  <div class="section-inner">
+    <div class="phase-num">03</div>
+    <h2>Roadmaps &amp; Exit Readiness</h2>
+    <div class="phase-weeks-label">Weeks 4-5</div>
+    <p>Translate baselines into action. Quantified reduction initiatives with cost-benefit analysis. Dedicated Meridian exit readiness workstream.</p>
+  </div>
+</section>
+
+<!-- Phase 3 Detail -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">PHASE 3 DETAIL</p>
+    <h2>Roadmaps &amp; Exit Readiness</h2>
+    <p class="section-subtitle">Every initiative has a cost, a payback, and a connection to the portco's value creation plan. Meridian gets a dedicated exit readiness assessment.</p>
+
+    <div class="phase3-top">
+      <div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Reduction Roadmaps (All Portcos)</h3>
+        <p style="font-size:0.875rem; color:var(--text-mid);">Develop company-specific reduction roadmaps: top 3-5 initiatives per portco &mdash; LED retrofits, HVAC optimization, fleet electrification, waste diversion &mdash; sized and costed for each company's operations.</p>
+        <p style="font-size:0.875rem; color:var(--text-mid);">Map each initiative to financial outcomes: EBITDA impact, risk mitigation, and exit positioning.</p>
+      </div>
+      <div class="meridian-highlight">
+        <div class="card-label">MERIDIAN EXIT READINESS</div>
+        <p>Dedicated workstream analyzing ESG positioning for Meridian's sale process:</p>
+        <ul>
+          <li>What Business Services acquirers are screening for</li>
+          <li>Where Meridian's narrative is strong vs. needs work</li>
+          <li>Gap-close plan aligned to exit timeline</li>
+          <li>ESG data room preparation checklist</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase3-bottom">
+      <div class="deliverables-card">
+        <div class="card-label">DELIVERABLES</div>
+        <ul>
+          <li>Per-portco reduction roadmap with ranked initiatives</li>
+          <li>Cost-benefit analysis for top initiatives (IRR, payback)</li>
+          <li>Value creation integration memo per portco</li>
+          <li>Meridian ESG exit readiness assessment</li>
+        </ul>
+      </div>
+      <div class="data-card">
+        <div class="card-label">DATA WE NEED FROM YOU</div>
+        <ul>
+          <li>Current value creation plans for priority portcos</li>
+          <li>CapEx budgets and approval thresholds</li>
+          <li>Facility lease terms (for retrofit ROI calculations)</li>
+          <li>Meridian exit timeline and target buyer profile</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 4 Divider -->
+<section class="phase-divider">
+  <div class="section-inner">
+    <div class="phase-num">04</div>
+    <h2>System Build &amp; Knowledge Transfer</h2>
+    <div class="phase-weeks-label">Week 6</div>
+    <p>Build the dashboards, playbooks, and CC knowledge architecture your team inherits. Present findings. Train your portco contacts. The engagement ends, but the system keeps working.</p>
+  </div>
+</section>
+
+<!-- Phase 4 Detail -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">PHASE 4 DETAIL</p>
+    <h2>System Build &amp; Knowledge Transfer</h2>
+    <p class="section-subtitle">Dashboards for ongoing tracking, LP-ready reporting, presentations to fund leadership, and the CC knowledge architecture your team inherits.</p>
+
+    <div class="phase-detail">
+      <div>
+        <h3>What We Do</h3>
+        <p>Build portfolio-level and company-level ESG dashboards your team can update quarterly. Design LP reporting templates aligned with TCFD and ILPA ESG DDQ frameworks.</p>
+        <p>Construct the CC-native knowledge layer: CLAUDE.md files encoding methodology, reference data libraries with emission factors and benchmarks, playbooks for quarterly updates.</p>
+        <p>Present findings to fund leadership. Conduct portco readouts. Run hands-on training so teams can execute their first independent update cycle.</p>
+        <h3>Post-Engagement Support</h3>
+        <p>30-day Q&amp;A window included. Your team can reach us with questions as they run their first independent update cycle.</p>
+      </div>
+      <div>
+        <div class="deliverables-card">
+          <div class="card-label">DELIVERABLES</div>
+          <ul>
+            <li>Portfolio-level ESG dashboard</li>
+            <li>Per-portco ESG tracking dashboards</li>
+            <li>LP reporting template (TCFD / ILPA-aligned)</li>
+            <li>CC knowledge architecture &amp; playbooks</li>
+            <li>Fund-level executive presentation</li>
+            <li>Training session for portco ESG contacts</li>
+            <li>30-day post-engagement support window</li>
+          </ul>
+        </div>
+        <div class="keeps-card">
+          <div class="card-label">WHAT RIDGEPOINT KEEPS</div>
+          <ul>
+            <li>All deliverables, dashboards, and templates</li>
+            <li>CC knowledge architecture and playbooks</li>
+            <li>Documented methodologies and reference data</li>
+            <li>A system built to compound &mdash; not decay</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Risks & Assumptions -->
+<section class="section-light" style="background: var(--white);">
+  <div class="section">
+    <p class="section-label">RISKS &amp; ASSUMPTIONS</p>
+    <h2>Risks <span class="accent">and how we mitigate them</span></h2>
+    <p class="section-subtitle">We surface risks upfront &mdash; not in week three. Here's what could slow us down and what we'll do about it.</p>
+
+    <table class="risk-table">
+      <thead><tr><th>RISK</th><th>IMPACT</th><th>MITIGATION</th></tr></thead>
+      <tbody>
+        <tr><td class="risk-name">Portco data quality is worse than expected</td><td class="impact-med-high">Medium-High</td><td>We use estimation protocols (GHG Protocol guidance on missing data) and flag data quality issues in Week 1, before they cascade. Scope 3 is already scoped as screening-level.</td></tr>
+        <tr><td class="risk-name">Portco ESG contacts are unresponsive or overloaded</td><td class="impact-high">High</td><td>Sarah designates a single point of contact per portco in kickoff. We build our discovery sessions around their schedules, not ours. Async data collection via structured templates.</td></tr>
+        <tr><td class="risk-name">Meridian exit timeline accelerates</td><td class="impact-med">Medium</td><td>Exit readiness workstream runs in parallel from Week 2, not sequentially in Week 5. If the timeline compresses, we prioritize Meridian deliverables.</td></tr>
+        <tr><td class="risk-name">Scope 3 categories require deeper analysis than screening allows</td><td class="impact-low">Low</td><td>Screening-level Scope 3 is designed to identify which categories matter. Deeper quantification is scoped as a potential follow-on &mdash; not crammed into six weeks.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="assumptions">
+      <h3>Key Assumptions</h3>
+      <ul>
+        <li>Sarah or designee available for weekly 30-min check-ins</li>
+        <li>Portco data provided within 5 business days of request</li>
+        <li>Two on-site visits to Chicago (included in fee)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Your Team -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">YOUR TEAM</p>
+    <h2>Your <span class="accent">Kith team</span></h2>
+    <p class="section-subtitle">Senior-led from day one. No hand-off to juniors after the kickoff meeting.</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">JR</div>
+        <h3>James Reeves</h3>
+        <div class="team-title">Engagement Lead</div>
+        <p class="team-bio">Former Director at a Big 4 sustainability practice. 12 years in PE ESG advisory. Led carbon inventory programs for 30+ portfolio companies across mid-market PE. SASB FSA certified.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">AL</div>
+        <h3>Ava Liu</h3>
+        <div class="team-title">Carbon &amp; Climate Lead</div>
+        <p class="team-bio">Environmental engineer, ex-EPA. GHG Protocol certified. Deep expertise in industrial emissions quantification and Scope 3 screening. Built emissions models for manufacturing and services sectors.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">MK</div>
+        <h3>Michael Kato</h3>
+        <div class="team-title">CC Systems Architect</div>
+        <p class="team-bio">Built Kith's CC-native methodology. Designs the CLAUDE.md architecture, playbooks, and knowledge systems that enable portco teams to run independently after engagement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section-light" style="background: var(--white);">
+  <div class="section">
+    <p class="section-label">PRICING</p>
+    <h2>Investment</h2>
+    <p class="section-subtitle">Flat project fee. No hourly billing, no scope-change surprises. One price for the full engagement.</p>
+
+    <div class="pricing-layout">
+      <ul class="pricing-list">
+        <li><span class="check">&#10003;</span><span><strong>Fund-level ESG assessment</strong> &mdash; portfolio visibility, LP reporting framework, data quality scorecard</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Carbon inventories for 3 primary portcos</strong> &mdash; Scope 1 &amp; 2 full, Scope 3 screening-level</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Materiality assessments</strong> &mdash; ranked by financial impact for each priority company</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Reduction roadmaps with cost-benefit analysis</strong> &mdash; per-portco, tied to value creation plans</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Meridian exit readiness assessment</strong> &mdash; dedicated workstream for the sale process</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Dashboards &amp; reporting templates</strong> &mdash; portfolio-level and portco-level, LP-ready</span></li>
+        <li><span class="check">&#10003;</span><span><strong>CC knowledge system &amp; playbooks</strong> &mdash; the compounding layer your team inherits</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Training &amp; knowledge transfer</strong> &mdash; hands-on sessions with portco ESG contacts</span></li>
+        <li><span class="check">&#10003;</span><span><strong>30-day post-engagement support</strong> &mdash; Q&amp;A window for your first independent cycle</span></li>
+        <li><span class="check">&#10003;</span><span><strong>Patriot Staffing (secondary scope)</strong> &mdash; lighter-touch assessment included</span></li>
+      </ul>
+      <div>
+        <div class="price-card">
+          <div class="price-label">SIX-WEEK ENGAGEMENT</div>
+          <div class="price-amount">$175,000</div>
+          <div class="price-type">Flat project fee</div>
+          <div class="price-terms"><strong>Payment terms:</strong> 50% at kickoff, 50% at delivery.</div>
+        </div>
+        <div class="exclusions-card">
+          <div class="card-label">NOT INCLUDED</div>
+          <p>Scope expansion to additional portcos beyond the four named, ongoing retainer work, or regulatory filing preparation. These can be scoped separately.</p>
+          <p style="margin-top:0.5rem;"><strong>Travel:</strong> Two on-site visits to Chicago included. Additional travel billed at cost.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About Kith -->
+<section class="section-light">
+  <div class="section">
+    <p class="section-label">ABOUT US</p>
+    <h2>About <span class="accent">Kith Consulting</span></h2>
+    <p class="section-subtitle">Climate &amp; sustainability consulting, built on Claude Code. Los Angeles, CA.</p>
+
+    <div class="about-stats">
+      <div class="about-stat"><div class="stat-num">30</div><div class="stat-label">CONSULTANTS</div></div>
+      <div class="about-stat"><div class="stat-num">100%</div><div class="stat-label">CC-NATIVE</div></div>
+      <div class="about-stat"><div class="stat-num">PE</div><div class="stat-label">FOCUSED</div></div>
+      <div class="about-stat"><div class="stat-num">14</div><div class="stat-label">PORTCOS SERVED</div></div>
+    </div>
+
+    <div class="about-props">
+      <div class="about-prop"><h4>PE-Native</h4><p>We speak value creation plans, operating reviews, and LP reporting. Not adapted &mdash; built for PE from day one.</p></div>
+      <div class="about-prop"><h4>CC-Native</h4><p>Claude Code is our operating system. Every deliverable runs through a consistent methodology with full traceability.</p></div>
+      <div class="about-prop"><h4>Immediate Impact</h4><p>No strategy decks that require a second phase. Dashboards and tools your team can use the day we deliver.</p></div>
+      <div class="about-prop"><h4>Knowledge Transfer</h4><p>We leave behind playbooks and systems, not dependency. Your team runs independently after we leave.</p></div>
+    </div>
+
+    <div class="engagements">
+      <h3>Recent PE ESG Engagements</h3>
+      <ul>
+        <li>Mid-market PE fund (Business Services, 6 portcos) &mdash; Full carbon inventory and LP reporting framework</li>
+        <li>Growth equity fund (Industrial/Manufacturing, 4 portcos) &mdash; Emissions reduction roadmaps with $2.1M identified annual savings</li>
+        <li>PE-backed environmental services platform &mdash; ESG due diligence support for two add-on acquisitions</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Next Steps -->
+<section class="cta">
+  <div class="logo logo-white" style="font-size:1.2rem; margin-bottom:1rem;">
+    <span class="logo-bold">kith</span><span class="logo-slash"> / </span><span class="logo-light">consulting</span>
+  </div>
+  <h2>Next Steps</h2>
+  <div class="accent-line"></div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-text">Confirm engagement &mdash; we're available to begin the week of April 7</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">Designate portco ESG contacts and schedule kickoff sessions</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">Share initial data package (utility bills, existing ESG reports, value creation plans)</div></div>
+  </div>
+
+  <p class="contact">James Reeves, Engagement Lead &middot; james@kithconsulting.com</p>
+  <p class="contact">Kith Consulting &middot; kithconsulting.com &middot; Los Angeles, CA</p>
+</section>
+
+<footer>Kith Consulting &middot; Confidential &middot; March 2026</footer>
+
+</body>
+</html>
