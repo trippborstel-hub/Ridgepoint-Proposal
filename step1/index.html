@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Steps — Northwood Capital</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232735; --border: #2e3345;
+    --text: #e2e4ea; --text-muted: #8b8fa3; --accent: #5bb8a4; --header-bg: #15171f;
+    --green: #4caf50; --yellow: #e8a84c; --red: #e85d5d; --orange: #e8724c; --none: #555a6e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 32px 48px; max-width: 1400px; margin: 0 auto; }
+  nav { display: flex; gap: 4px; margin-bottom: 24px; padding: 8px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; flex-wrap: wrap; }
+  nav a { padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+  nav a.active { background: var(--accent); color: var(--bg); }
+  nav a.ready { color: var(--text-muted); border: 1px solid var(--border); }
+  nav a.ready:hover { background: var(--surface2); color: var(--text); }
+
+  h1 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; }
+  h2 { font-size: 18px; font-weight: 700; color: #fff; margin: 40px 0 6px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 .tnum { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 8px 0; }
+
+  .meta-bar { display: flex; gap: 32px; margin-bottom: 36px; padding: 16px 20px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+  .meta-value { font-size: 15px; font-weight: 600; color: #fff; }
+
+  /* Engagement timeline */
+  .engagement-track { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin: 24px 0 40px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .week-block { padding: 16px 12px; text-align: center; border-right: 1px solid var(--border); position: relative; }
+  .week-block:last-child { border-right: none; }
+  .week-block .week-num { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 4px; }
+  .week-block .week-label { font-size: 13px; font-weight: 700; color: #fff; }
+  .week-block .week-step { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .week-block.completed { background: rgba(76,175,80,0.12); }
+  .week-block.current { background: rgba(91,184,164,0.18); border: 2px solid var(--accent); }
+  .week-block.upcoming { background: var(--surface); }
+  .week-block.current::after { content: 'WE ARE HERE'; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg); font-size: 9px; font-weight: 800; letter-spacing: 0.8px; padding: 2px 10px; border-radius: 0 0 4px 4px; }
+
+  /* Step 1 progress */
+  .step-progress { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+  .progress-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .progress-card h3 { margin: 0 0 16px 0; font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; }
+
+  .deliverable-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .deliverable-row:last-child { border-bottom: none; }
+  .deliverable-status { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .status-done { background: rgba(76,175,80,0.2); border: 2px solid var(--green); color: var(--green); }
+  .status-partial { background: rgba(232,168,76,0.15); border: 2px solid var(--yellow); color: var(--yellow); }
+  .status-blocked { background: rgba(232,93,93,0.15); border: 2px solid var(--red); color: var(--red); }
+  .status-pending { background: var(--surface2); border: 2px solid var(--none); color: var(--none); }
+  .deliverable-info { flex: 1; }
+  .deliverable-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .deliverable-detail { font-size: 12px; color: var(--text-muted); }
+
+  /* Output tracker */
+  .output-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .output-row:last-child { border-bottom: none; }
+  .output-name { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .output-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 10px; border-radius: 4px; }
+  .os-done { background: rgba(76,175,80,0.2); color: var(--green); }
+  .os-partial { background: rgba(232,168,76,0.15); color: var(--yellow); }
+  .os-blocked { background: rgba(232,93,93,0.15); color: var(--red); }
+  .os-pending { background: var(--surface2); color: var(--none); }
+
+  /* Next steps */
+  .next-steps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .ns-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .ns-card.active { border-left: 3px solid var(--accent); }
+  .ns-card.waiting { border-left: 3px solid var(--yellow); }
+  .ns-card.future { border-left: 3px solid var(--none); opacity: 0.7; }
+  .ns-card .ns-when { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+  .ns-card.waiting .ns-when { color: var(--yellow); }
+  .ns-card.future .ns-when { color: var(--none); }
+  .ns-card .ns-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .ns-card .ns-body { font-size: 13px; color: var(--text-muted); }
+  .ns-card .ns-body ul { padding-left: 16px; margin-top: 6px; }
+  .ns-card .ns-body li { margin-bottom: 4px; }
+  .ns-card .ns-owner { font-size: 11px; color: var(--text-muted); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .ns-card .ns-owner strong { color: var(--text); }
+
+  /* Dependency chain */
+  .dep-chain { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin: 24px 0; }
+  .dep-row { display: flex; align-items: center; gap: 0; margin-bottom: 8px; }
+  .dep-row:last-child { margin-bottom: 0; }
+  .dep-node { padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .dep-node.done { background: rgba(76,175,80,0.15); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+  .dep-node.active { background: rgba(91,184,164,0.15); color: var(--accent); border: 1px solid rgba(91,184,164,0.3); }
+  .dep-node.waiting { background: rgba(232,168,76,0.12); color: var(--yellow); border: 1px solid rgba(232,168,76,0.25); }
+  .dep-node.blocked { background: rgba(232,93,93,0.12); color: var(--red); border: 1px solid rgba(232,93,93,0.25); }
+  .dep-node.future { background: var(--surface2); color: var(--none); border: 1px solid var(--border); }
+  .dep-arrow { color: var(--text-muted); margin: 0 8px; font-size: 14px; }
+
+  /* Risk table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+  thead th { background: var(--header-bg); color: var(--accent); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 10px 12px; vertical-align: top; }
+  td.item { font-weight: 600; color: var(--text); }
+
+  .key-decision { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 16px 0; border-left: 3px solid var(--accent); }
+  .key-decision .kd-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .key-decision p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); text-align: center; }
+  @media (max-width: 900px) { body { padding: 16px; } .step-progress, .next-steps-grid { grid-template-columns: 1fr; } .engagement-track { grid-template-columns: repeat(3, 1fr); } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="deliverable-1-data-inventory.html" class="ready">1 Data Inventory</a>
+  <a href="deliverable-2-data-quality.html" class="ready">2 Quality Assessment</a>
+  <a href="deliverable-3-error-log.html" class="ready">3 Error Log</a>
+  <a href="deliverable-4-gap-analysis.html" class="ready">4 Gap Analysis</a>
+  <a href="deliverable-5-data-ask.html" class="ready">5 Data Ask</a>
+  <a href="index.html" class="active">Next Steps</a>
+</nav>
+
+<h1>Engagement Status &amp; <span>Next Steps</span></h1>
+<p class="subtitle">Northwood Capital Partners — Climate Data &amp; Strategy Engagement</p>
+
+<div class="meta-bar">
+  <div class="meta-item"><span class="meta-label">Engagement</span><span class="meta-value">6-Week Climate Data &amp; Strategy</span></div>
+  <div class="meta-item"><span class="meta-label">Current Phase</span><span class="meta-value">Step 1 — Data Collection &amp; Gap Assessment</span></div>
+  <div class="meta-item"><span class="meta-label">Status Date</span><span class="meta-value">March 26, 2026</span></div>
+  <div class="meta-item"><span class="meta-label">Week</span><span class="meta-value">1 of 6</span></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENGAGEMENT TIMELINE -->
+<!-- ============================================================ -->
+<h2><span class="tnum">1</span> Engagement Timeline</h2>
+
+<div class="engagement-track">
+  <div class="week-block current">
+    <div class="week-num">Week 1</div>
+    <div class="week-label">Data Assessment</div>
+    <div class="week-step">Step 1</div>
+  </div>
+  <div class="week-block upcoming">
+    <div class="week-num">Week 2</div>
+    <div class="week-label">Data Collection &amp; System Design</div>
+    <div class="week-step">Steps 1 + 2</div>
+  </div>
+  <div class="week-block upcoming">
+    <div class="week-num">Week 3</div>
+    <div class="week-label">Baseline Calculation</div>
+    <div class="week-step">Step 2</div>
+  </div>
+  <div class="week-block upcoming">
+    <div class="week-num">Week 4</div>
+    <div class="week-label">BAU &amp; Targets</div>
+    <div class="week-step">Steps 2 + 3</div>
+  </div>
+  <div class="week-block upcoming">
+    <div class="week-num">Week 5</div>
+    <div class="week-label">Decarbonization Pathways</div>
+    <div class="week-step">Step 3</div>
+  </div>
+  <div class="week-block upcoming">
+    <div class="week-num">Week 6</div>
+    <div class="week-label">Delivery &amp; Handoff</div>
+    <div class="week-step">Step 3</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STEP 1 PROGRESS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">2</span> Step 1 Progress — Where We Are Today</h2>
+
+<div class="step-progress">
+  <div class="progress-card">
+    <h3>Deliverables</h3>
+    <div class="deliverable-row">
+      <div class="deliverable-status status-done">&#10003;</div>
+      <div class="deliverable-info">
+        <div class="deliverable-name">D1: Data Inventory</div>
+        <div class="deliverable-detail">212 files cataloged across 10 portcos. File types, locations, and classifications documented.</div>
+      </div>
+    </div>
+    <div class="deliverable-row">
+      <div class="deliverable-status status-done">&#10003;</div>
+      <div class="deliverable-info">
+        <div class="deliverable-name">D2: Data Quality Assessment</div>
+        <div class="deliverable-detail">GHG Protocol-aligned scoring across 5 principles. Scope 1+2 and Scope 3 screening assessment complete.</div>
+      </div>
+    </div>
+    <div class="deliverable-row">
+      <div class="deliverable-status status-done">&#10003;</div>
+      <div class="deliverable-info">
+        <div class="deliverable-name">D3: Error Log &amp; Proposed Fixes</div>
+        <div class="deliverable-detail">18 errors documented (2 critical, 4 high, 8 medium, 4 low). Corrections and resolution plan defined.</div>
+      </div>
+    </div>
+    <div class="deliverable-row">
+      <div class="deliverable-status status-done">&#10003;</div>
+      <div class="deliverable-info">
+        <div class="deliverable-name">D4: Gap Analysis</div>
+        <div class="deliverable-detail">28 gaps identified. Proposal-to-reality mapping complete. Step 2+3 readiness assessed.</div>
+      </div>
+    </div>
+    <div class="deliverable-row">
+      <div class="deliverable-status status-done">&#10003;</div>
+      <div class="deliverable-info">
+        <div class="deliverable-name">D5: Data Request</div>
+        <div class="deliverable-detail">17 requests across 4 tiers. Structured by owner and urgency. Ready to send to Sarah.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-card">
+    <h3>Step 1 Outputs (from Proposal)</h3>
+    <div class="output-row">
+      <div class="output-name">Climate data pond in CC</div>
+      <span class="output-status os-blocked">Blocked</span>
+    </div>
+    <div class="output-row" style="padding-left:16px;">
+      <div class="deliverable-detail" style="flex:1;">Waiting on CC environment access (R-01). Data is ready to load — schema design can begin locally.</div>
+    </div>
+    <div class="output-row">
+      <div class="output-name">Structured reference data library</div>
+      <span class="output-status os-partial">In Progress</span>
+    </div>
+    <div class="output-row" style="padding-left:16px;">
+      <div class="deliverable-detail" style="flex:1;">Emission factors (EPA 2023, eGRID 2022) identified. carbon_footprint.py tool referenced in protocol but not yet built. Builds in Step 2.</div>
+    </div>
+    <div class="output-row">
+      <div class="output-name">Data gap assessment per portco</div>
+      <span class="output-status os-done">Complete</span>
+    </div>
+    <div class="output-row" style="padding-left:16px;">
+      <div class="deliverable-detail" style="flex:1;">Deliverables 2, 3, and 4 collectively fulfill this output. Per-portco scoring, error documentation, and gap mapping complete.</div>
+    </div>
+    <div class="output-row">
+      <div class="output-name">Reusable data collection template</div>
+      <span class="output-status os-pending">Week 2</span>
+    </div>
+    <div class="output-row" style="padding-left:16px;">
+      <div class="deliverable-detail" style="flex:1;">The existing questionnaire format works but varies by portco (Keystone used 8 sections vs. standard 10). We'll produce a standardized template informed by the gaps we found.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DEPENDENCY CHAIN -->
+<!-- ============================================================ -->
+<h2><span class="tnum">3</span> Critical Path — What Unlocks What</h2>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">The engagement has three parallel workstreams. Here's the dependency chain showing what we can do now versus what's waiting on client data.</p>
+
+<div class="dep-chain">
+  <p style="font-size:12px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">Workstream A: Scope 1+2 Baseline</p>
+  <div class="dep-row">
+    <div class="dep-node done">Data Inventory</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node done">Quality Assessment</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node done">Error Log</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node active">Apply Phase 1 Fixes</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node waiting">Receive Portco Confirmations</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Calculate Baseline</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Build Dashboards</div>
+  </div>
+
+  <p style="font-size:12px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin:20px 0 12px 0;">Workstream B: CC Data System</p>
+  <div class="dep-row">
+    <div class="dep-node done">Schema Design (from inventory)</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node blocked">Get CC Access</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Build Data Pond</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Load + Validate Data</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Portco Dashboards</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Fund-Level Rollup</div>
+  </div>
+
+  <p style="font-size:12px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin:20px 0 12px 0;">Workstream C: Climate Strategy (Step 3)</p>
+  <div class="dep-row">
+    <div class="dep-node done">Gap Analysis</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node active">Data Ask Sent</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node blocked">Receive Financials + VCPs</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">BAU Emissions Model</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">Decarbonization Pathways</div>
+    <span class="dep-arrow">&rarr;</span>
+    <div class="dep-node future">LP Narrative</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- NEXT STEPS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">4</span> Next Steps — Completing Step 1</h2>
+
+<div class="next-steps-grid">
+  <div class="ns-card active">
+    <div class="ns-when">Now — This Week</div>
+    <div class="ns-title">Apply Internal Fixes (Phase 1)</div>
+    <div class="ns-body">
+      We can fix 4 errors immediately without waiting for client data:
+      <ul>
+        <li>E-02: Fix CSV formatting (6 rows with extra comma)</li>
+        <li>E-01: Correct NovaCare unit swap (move kWh from therms column)</li>
+        <li>E-09: Annualize Keystone Trenton (7-month to 12-month)</li>
+        <li>E-11: Prorate Patriot Louisville (full year to 8 months closed branch)</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith</div>
+  </div>
+
+  <div class="ns-card active">
+    <div class="ns-when">Now — This Week</div>
+    <div class="ns-title">Send Data Request to Sarah</div>
+    <div class="ns-body">
+      Deliver the Deliverable 5 memo. This starts the clock on client data collection. Key actions:
+      <ul>
+        <li>Send memo with all 17 requests organized by tier</li>
+        <li>Schedule a 15-minute walkthrough call if Sarah prefers</li>
+        <li>Flag Tier 1 items as immediate (CC access, co-build partner, 2 quick confirmations)</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith</div>
+  </div>
+
+  <div class="ns-card active">
+    <div class="ns-when">Now — This Week</div>
+    <div class="ns-title">Design CC Data Schema Locally</div>
+    <div class="ns-body">
+      While waiting for CC access, begin the schema design work locally:
+      <ul>
+        <li>Define table structure for the climate data pond (facility, energy, fleet, refrigerant, emissions)</li>
+        <li>Map CSV columns to target schema</li>
+        <li>Design the emission factor reference library structure</li>
+        <li>Draft the calculation methodology documentation</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith</div>
+  </div>
+
+  <div class="ns-card active">
+    <div class="ns-when">Now — This Week</div>
+    <div class="ns-title">Build Standardized Collection Template</div>
+    <div class="ns-body">
+      The current questionnaire varies by portco (Keystone used 8 sections vs. standard 10, different formats). Build a single reusable template:
+      <ul>
+        <li>Standard 10-section structure covering Scope 1, 2, and 3 screening inputs</li>
+        <li>Built-in validation rules (unit checks, range checks, completeness flags)</li>
+        <li>Pre-populated with facility lists from the existing CSV</li>
+        <li>Designed for portco CFO/COO self-service — clear instructions, example entries</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith</div>
+  </div>
+
+  <div class="ns-card waiting">
+    <div class="ns-when">Waiting On Client — Week 2</div>
+    <div class="ns-title">Receive Tier 1 &amp; 2 Responses</div>
+    <div class="ns-body">
+      These items flow from the data request and determine what we can calculate:
+      <ul>
+        <li>CC environment access (unblocks Workstream B entirely)</li>
+        <li>Co-build partner name (unblocks collaborative work)</li>
+        <li>Meridian fleet classification (resolves Scope 1 boundary)</li>
+        <li>NovaCare unit swap confirmation (resolves critical error)</li>
+        <li>Sterling facility allocation confirmation (resolves Scope 2 accuracy)</li>
+        <li>Patriot fuel card data (resolves fleet anomaly)</li>
+        <li>Keystone utility data for 7 clinics (replaces estimates)</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Sarah Mitchell + portco contacts</div>
+  </div>
+
+  <div class="ns-card waiting">
+    <div class="ns-when">Waiting On Client — Week 2</div>
+    <div class="ns-title">Receive Strategic Inputs for Step 3</div>
+    <div class="ns-body">
+      These items don't block Step 1 completion but are needed to begin Step 3:
+      <ul>
+        <li>Financial summaries for 3 priority portcos (or deal lead calls)</li>
+        <li>Value creation plans (or 30-min call alternative)</li>
+        <li>Monthly utility data for priority portcos</li>
+        <li>Prior LP ESG/climate communications</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Sarah Mitchell + deal leads</div>
+  </div>
+
+  <div class="ns-card future">
+    <div class="ns-when">Week 2 — Once Data Arrives</div>
+    <div class="ns-title">Integrate New Data &amp; Recalculate Quality Scores</div>
+    <div class="ns-body">
+      As portco responses come in, update the data environment:
+      <ul>
+        <li>Replace estimates with actuals in the CSV</li>
+        <li>Reconcile confirmed corrections from E-03, E-05, E-06</li>
+        <li>Add Ridgeline Las Vegas office (RPS-007)</li>
+        <li>Re-run data quality scores — target: all priority portcos at 4/5 or above</li>
+        <li>Update Deliverables 2-4 with revised assessments</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith</div>
+  </div>
+
+  <div class="ns-card future">
+    <div class="ns-when">End of Week 2 — Step 1 Complete</div>
+    <div class="ns-title">Finalize Step 1 &amp; Transition to Steps 2+3</div>
+    <div class="ns-body">
+      Step 1 is complete when:
+      <ul>
+        <li>All critical and high-severity errors are resolved or have documented workarounds</li>
+        <li>Corrected CSV is loaded into the CC data pond</li>
+        <li>Emission factor library is built and documented</li>
+        <li>Standardized collection template is delivered to portco owners</li>
+        <li>Data quality scores are updated with post-correction values</li>
+        <li>Scope 1+2 baseline calculation can begin for all 3 priority portcos</li>
+      </ul>
+    </div>
+    <div class="ns-owner"><strong>Owner:</strong> Kith + co-build partner</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- KEY DECISION POINTS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">5</span> Key Decision Points Ahead</h2>
+
+<div class="key-decision">
+  <div class="kd-title">Decision 1: Keystone Scope — Week 3 Checkpoint</div>
+  <p>If Keystone's data doesn't materially improve by Week 3 (R-07 clinic utility data and R-13 therapist mileage don't arrive), we pivot: deeper quantitative analysis on Meridian and Sterling, lighter architecture-focused scope on Keystone. We'll flag this early — no surprises.</p>
+</div>
+
+<div class="key-decision">
+  <div class="kd-title">Decision 2: Add Harvest Ridge as Fourth Priority Portco?</div>
+  <p>Harvest Ridge scored 4/5 on data quality with a compelling sector story (food manufacturing, food waste, high-GWP refrigerants). Low marginal effort to include. This is Sarah's call — we've laid out the case in the Data Ask memo. Need answer by end of Week 2 to incorporate into Step 2 build.</p>
+</div>
+
+<div class="key-decision">
+  <div class="kd-title">Decision 3: CC Environment — Build or Wait?</div>
+  <p>If CC access isn't available by the end of Week 2, we recommend building the prototype in Kith's local environment and migrating later. This adds a migration step but prevents the system build from falling behind schedule. We'll raise this with Sarah if R-01 isn't resolved by April 3.</p>
+</div>
+
+<div class="key-decision">
+  <div class="kd-title">Decision 4: Scope 3 Depth — Screening vs. Quantification</div>
+  <p>The proposal scopes Scope 3 as a "screening" — identifying which categories are material. The data environment has zero Scope 3 inputs. If Tier 4 data (waste manifests, procurement spend, travel data) arrives, we can upgrade from screening to partial quantification for the most material categories. If it doesn't, we screen using industry benchmarks and flag specific categories for future data collection. Either approach is defensible — the question is how much client effort to invest in Scope 3 data for this engagement vs. building the collection system for next year.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- RISKS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">6</span> Risks &amp; Mitigations</h2>
+
+<table>
+<thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr>
+  <td class="item">CC access delayed beyond Week 2</td>
+  <td style="color:var(--yellow);">Medium</td>
+  <td style="color:var(--red);">High — blocks Step 2 entirely</td>
+  <td style="color:var(--text-muted);">Build locally and migrate. Raise with Sarah on April 3 if unresolved.</td>
+</tr>
+<tr>
+  <td class="item">Keystone data doesn't materialize</td>
+  <td style="color:var(--yellow);">Medium</td>
+  <td style="color:var(--yellow);">Medium — weakens one of three portcos</td>
+  <td style="color:var(--text-muted);">Pivot to architecture-focused deliverable. Meridian and Sterling carry the quantitative story.</td>
+</tr>
+<tr>
+  <td class="item">Financial data / VCPs not shared</td>
+  <td style="color:var(--yellow);">Medium</td>
+  <td style="color:var(--red);">High — blocks Step 3 financial integration</td>
+  <td style="color:var(--text-muted);">Offer the 30-min call alternative. Offer banded/rounded figures. If neither works, Step 3 delivers emissions-only (no financial overlay).</td>
+</tr>
+<tr>
+  <td class="item">No co-build partner assigned</td>
+  <td style="color:var(--orange);">Medium-High</td>
+  <td style="color:var(--yellow);">Medium — risks post-engagement sustainability</td>
+  <td style="color:var(--text-muted);">Build excellent documentation. But escalate early — this is a proposal commitment, not a nice-to-have.</td>
+</tr>
+<tr>
+  <td class="item">Patriot fleet anomaly is real (76K gal)</td>
+  <td style="color:var(--none);">Low</td>
+  <td style="color:var(--yellow);">Medium — changes Patriot's emissions profile significantly</td>
+  <td style="color:var(--text-muted);">Fuel card data (R-06) will resolve. If confirmed, document the finding and adjust baseline.</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- WEEK 2 PREVIEW -->
+<!-- ============================================================ -->
+<h2><span class="tnum">7</span> Week 2 Preview</h2>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:16px 0;">
+  <p style="font-size:14px;color:var(--text);margin-bottom:14px;">Assuming Tier 1 data arrives this week, here's what Week 2 looks like:</p>
+  <table>
+  <thead><tr><th>Day</th><th>Kith Activity</th><th>Client Activity</th></tr></thead>
+  <tbody>
+  <tr><td class="item" style="white-space:nowrap;">Mon Mar 30</td><td style="color:var(--text-muted);">Apply Phase 1 fixes to CSV. Begin CC schema build (locally or in CC). Deliver standardized collection template draft.</td><td style="color:var(--text-muted);">Tier 1 responses due. CC access + co-build partner confirmed.</td></tr>
+  <tr><td class="item" style="white-space:nowrap;">Tue-Wed</td><td style="color:var(--text-muted);">Integrate Tier 2 portco responses as they arrive. Build emission factor library. Begin Scope 1+2 baseline calculation for Meridian and Sterling (cleanest data).</td><td style="color:var(--text-muted);">Portco contacts respond to R-05 through R-08.</td></tr>
+  <tr><td class="item" style="white-space:nowrap;">Thu-Fri Apr 3</td><td style="color:var(--text-muted);">Complete baseline draft for Meridian + Sterling. Begin Keystone baseline (with available data). Start CC data pond build if access received. Design portco dashboard wireframes with co-build partner.</td><td style="color:var(--text-muted);">Tier 2 responses due. Financial data / VCP conversations begin (Tier 3).</td></tr>
+  </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--accent);margin-top:14px;font-weight:600;">End of Week 2 target: Step 1 substantially complete. Draft Scope 1+2 baselines for Meridian and Sterling. CC data system prototype operational. Standardized collection template finalized and delivered.</p>
+</div>
+
+<div class="footer">
+  Kith Consulting &bull; Northwood Capital Partners Engagement &bull; Status &amp; Next Steps &bull; March 26, 2026
+</div>
+
+</body>
+</html>

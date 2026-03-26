@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deliverable 5: Data Request — Northwood Capital</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232735; --border: #2e3345;
+    --text: #e2e4ea; --text-muted: #8b8fa3; --accent: #5bb8a4; --header-bg: #15171f;
+    --green: #4caf50; --yellow: #e8a84c; --red: #e85d5d; --orange: #e8724c; --none: #555a6e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 32px 48px; max-width: 1200px; margin: 0 auto; }
+  nav { display: flex; gap: 4px; margin-bottom: 24px; padding: 8px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; flex-wrap: wrap; }
+  nav a { padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+  nav a.active { background: var(--accent); color: var(--bg); }
+  nav a.ready { color: var(--text-muted); border: 1px solid var(--border); }
+  nav a.ready:hover { background: var(--surface2); color: var(--text); }
+
+  /* Memo styling */
+  .memo-header { margin-bottom: 40px; }
+  .memo-logo { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+  .memo-title { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .memo-subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; }
+
+  .memo-meta { display: grid; grid-template-columns: 80px 1fr; gap: 8px 16px; font-size: 14px; padding: 16px 20px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 32px; }
+  .memo-meta .label { color: var(--text-muted); font-weight: 600; }
+  .memo-meta .value { color: var(--text); }
+
+  .memo-body p { font-size: 14px; color: var(--text); margin-bottom: 14px; }
+  .memo-body p.muted { color: var(--text-muted); font-size: 13px; }
+
+  h2 { font-size: 18px; font-weight: 700; color: #fff; margin: 36px 0 6px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 .tnum { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 24px 0 10px 0; }
+
+  .priority-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 8px; }
+  .p-urgent { background: rgba(232,93,93,0.2); color: var(--red); border: 1px solid rgba(232,93,93,0.3); }
+  .p-week1 { background: rgba(232,114,76,0.2); color: var(--orange); border: 1px solid rgba(232,114,76,0.3); }
+  .p-week2 { background: rgba(232,168,76,0.15); color: var(--yellow); border: 1px solid rgba(232,168,76,0.25); }
+  .p-ongoing { background: rgba(107,155,210,0.1); color: #7ba5d0; border: 1px solid rgba(107,155,210,0.2); }
+
+  .request-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+  .request-card-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); }
+  .request-card-header .title { font-size: 15px; font-weight: 700; color: #fff; }
+  .request-card-header .ref { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .request-card-body { padding: 16px 20px; }
+  .request-card-body .why { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; font-style: italic; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 4px; }
+  thead th { background: var(--header-bg); color: var(--accent); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 8px 12px; vertical-align: top; }
+  td.item { font-weight: 600; color: var(--text); }
+
+  .owner-tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+  .owner-sarah { background: rgba(91,184,164,0.15); color: var(--accent); border-color: rgba(91,184,164,0.3); }
+  .owner-portco { background: rgba(232,168,76,0.12); color: var(--yellow); border-color: rgba(232,168,76,0.25); }
+
+  .timeline { display: flex; gap: 0; margin: 32px 0; border-radius: 8px; overflow: hidden; font-size: 12px; font-weight: 600; }
+  .timeline .phase { padding: 12px 16px; text-align: center; flex: 1; }
+  .timeline .phase .phase-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.7; margin-bottom: 2px; }
+  .timeline .urgent { background: rgba(232,93,93,0.25); color: var(--red); }
+  .timeline .wk1 { background: rgba(232,114,76,0.2); color: var(--orange); }
+  .timeline .wk2 { background: rgba(232,168,76,0.15); color: var(--yellow); }
+  .timeline .ongoing { background: rgba(107,155,210,0.1); color: #7ba5d0; }
+
+  .checklist { list-style: none; padding: 0; margin: 12px 0; }
+  .checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 13px; color: var(--text-muted); }
+  .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--accent); font-size: 14px; }
+
+  .portco-section { border-left: 3px solid var(--accent); padding-left: 20px; margin: 20px 0 28px 0; }
+  .portco-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .portco-contact { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+
+  .closing { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin: 36px 0; }
+  .closing p { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+  .sig { margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+  .sig .name { font-weight: 700; color: var(--text); }
+
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); text-align: center; }
+  @media (max-width: 768px) { body { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="ready" style="margin-right:8px;border-right:2px solid var(--border);padding-right:16px;">â Proposal</a>
+  <a href="deliverable-1-data-inventory.html" class="ready">1 Data Inventory</a>
+  <a href="deliverable-2-data-quality.html" class="ready">2 Quality Assessment</a>
+  <a href="deliverable-3-error-log.html" class="ready">3 Error Log</a>
+  <a href="deliverable-4-gap-analysis.html" class="ready">4 Gap Analysis</a>
+  <a href="deliverable-5-data-ask.html" class="active">5 Data Ask</a>
+  <a href="index.html" class="ready">Next Steps</a>
+</nav>
+
+<!-- ============================================================ -->
+<!-- MEMO HEADER -->
+<!-- ============================================================ -->
+<div class="memo-header">
+  <div class="memo-logo">Kith Consulting</div>
+  <div class="memo-title">Climate Data Request</div>
+  <div class="memo-subtitle">Northwood Capital Partners — Step 1 Follow-Up</div>
+</div>
+
+<div class="memo-meta">
+  <span class="label">To:</span><span class="value">Sarah Mitchell, COO — Northwood Capital Partners</span>
+  <span class="label">From:</span><span class="value">Kith Consulting — Climate Engagement Team</span>
+  <span class="label">Date:</span><span class="value">March 26, 2026</span>
+  <span class="label">Re:</span><span class="value">Data needed to complete Step 1 and begin Steps 2 &amp; 3</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- EXECUTIVE CONTEXT -->
+<!-- ============================================================ -->
+<div class="memo-body">
+  <p>Sarah,</p>
+  <p>Thank you for the data environment your team assembled. We've completed our initial inventory and quality assessment across all 10 portfolio companies. The energy consumption data — covering 139 facilities across both funds — gives us a solid foundation. After correcting the errors we've identified, we can produce a defensible Scope 1 and Scope 2 baseline for 8 of 10 companies from what you've already provided.</p>
+  <p>This memo outlines the additional data we need, organized by urgency. We've structured it so your team and the portco contacts can see exactly what to send, who owns it, and why we need it. Nothing here is a surprise — these are the items from our original proposal scope that haven't arrived yet, plus a few specific follow-ups driven by what we found in the data.</p>
+  <p>We've separated the requests into four tiers so you can triage across your team's bandwidth:</p>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline">
+  <div class="phase urgent">
+    <div class="phase-label">Tier 1</div>
+    Immediate<br>(By Mar 30)
+  </div>
+  <div class="phase wk1">
+    <div class="phase-label">Tier 2</div>
+    Week 1<br>(By Apr 3)
+  </div>
+  <div class="phase wk2">
+    <div class="phase-label">Tier 3</div>
+    Week 2<br>(By Apr 10)
+  </div>
+  <div class="phase ongoing">
+    <div class="phase-label">Tier 4</div>
+    When Available<br>(Improves accuracy)
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TIER 1: IMMEDIATE -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Tier 1</span> Immediate — Unblocks Our Work This Week</h2>
+<p class="memo-body muted">These 4 items are either infrastructure we need to start building or quick confirmations that resolve data contradictions. None require heavy lifting — most are a single email or a 5-minute action.</p>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-urgent">Immediate</span>
+      <span class="title">R-01: CC Environment Access</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah / IT</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">We need this to begin Step 2 (Climate Data System Build). Every day without access delays the system build.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th><th>Notes</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Workspace URL and login credentials for Northwood's CC environment</td><td>Email / invite link</td><td>If the environment doesn't exist yet, we can set it up together. We just need authorization to create it under Northwood's account.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-urgent">Immediate</span>
+      <span class="title">R-02: Co-Build Partner Assignment</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">Our proposal is built on the co-build model — someone from your team learns the system by helping build it. This is how the engagement sticks after we leave.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Time Commitment</th><th>Notes</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Name of an analyst or associate from your team who will co-build the CC climate data system</td><td>~10 hrs/week for Weeks 2-6</td><td>Ideal profile: comfortable with data, curious about climate/ESG, interested in owning this going forward. Your data collection protocol references a "Sustainability Analyst" role — if that person exists, they're the natural fit.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-urgent">Immediate</span>
+      <span class="title">R-03: Meridian Fleet Clarification</span>
+    </div>
+    <span class="owner-tag owner-portco">Patricia Wells, CFO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">The questionnaire says "no fleet" but the CSV shows 3,200 gallons of gasoline across 5 facilities. We need to know the ownership structure to classify these emissions correctly.</div>
+    <table>
+    <thead><tr><th>Question</th><th>Why It Matters</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Are the vehicles at Chicago HQ, Detroit, Atlanta, Jacksonville, and Dallas company-owned/leased, or personal vehicles with mileage reimbursement?</td><td>Company-owned = Scope 1 emissions. Personal with reimbursement = Scope 3 Category 7. The classification changes Meridian's reported footprint. For exit prep, this needs to be right.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-urgent">Immediate</span>
+      <span class="title">R-04: NovaCare Unit Swap Confirmation</span>
+    </div>
+    <span class="owner-tag owner-portco">Michael Park, CFO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">Two RehabWorks clinics (Marietta GA, Augusta GA) have electricity entered in the natural gas column. We've corrected this in our working file but need confirmation our correction is right.</div>
+    <table>
+    <thead><tr><th>Facility</th><th>Our Proposed Correction</th><th>What We Need From You</th></tr></thead>
+    <tbody>
+    <tr><td class="item">NC-026 (Marietta, GA)</td><td>Move 82,000 from gas to electricity. Estimate gas at ~3,800 therms (GA clinic median).</td><td rowspan="2">Confirm the correction makes sense, or provide actual utility bills for these two clinics. A quick "yes, that looks right" is sufficient — we can get the exact numbers later.</td></tr>
+    <tr><td class="item">NC-027 (Augusta, GA)</td><td>Move 74,000 from gas to electricity. Estimate gas at ~3,400 therms.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TIER 2: WEEK 1 -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Tier 2</span> Week 1 — Needed to Finalize Scope 1 &amp; 2 Baseline</h2>
+<p class="memo-body muted">These items resolve the data quality issues we found during cross-referencing. Each one is a specific question to a specific portco contact. We've drafted the questions — Sarah, you can forward these directly or we can reach out ourselves if you prefer.</p>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week1">Week 1</span>
+      <span class="title">R-05: Sterling Facility Allocation Confirmation</span>
+    </div>
+    <span class="owner-tag owner-portco">Derek Williams, COO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">The CSV and questionnaire agree on portfolio totals but disagree on how energy is split between Akron and Elyria. Since they're in different grid regions, the split affects Scope 2 calculations.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Confirmation that the CSV values (from utility bills) are the correct facility-level breakdown</td><td>Email confirmation</td></tr>
+    <tr><td class="item">December 2025 utility statements for all 3 facilities (to replace 11-month annualization)</td><td>PDF utility bills or kWh/therm totals</td></tr>
+    <tr><td class="item">HVAC maintenance records — any refrigerant recharges in 2025 across all 3 plants</td><td>Service invoices or maintenance log</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week1">Week 1</span>
+      <span class="title">R-06: Patriot Fleet Data Reconciliation</span>
+    </div>
+    <span class="owner-tag owner-portco">Scott Henderson, VP of Risk</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">The CSV reports 76,700 gallons across 26 facilities attributed to 8 vehicles. That's 9,600 gal/vehicle — 16x a typical sedan. Something doesn't add up.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th></tr></thead>
+    <tbody>
+    <tr><td class="item">2025 fuel card statements or fuel purchase records</td><td>Fuel card report (CSV or PDF)</td></tr>
+    <tr><td class="item">Total vehicle count (not just "branch manager vehicles" — include any pool cars, shuttle buses, service vehicles)</td><td>Vehicle list with type and location</td></tr>
+    <tr><td class="item">Shuttle bus fuel: 3 locations operate shuttles — is this fuel included in the 76,700 gal or is it separate?</td><td>Email clarification</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week1">Week 1</span>
+      <span class="title">R-07: Keystone Utility Data for Estimated Clinics</span>
+    </div>
+    <span class="owner-tag owner-portco">Jennifer Martinez, COO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">Six clinics use a flat 33,000 kWh estimate (same formula applied to different climates). We need actuals to replace these placeholders.</div>
+    <table>
+    <thead><tr><th>Facility</th><th>Location</th><th>What We Need</th></tr></thead>
+    <tbody>
+    <tr><td class="item">KBH-004</td><td>Doylestown, PA</td><td rowspan="6">12 months of electricity and gas consumption. Landlord utility data, tenant sub-meter readings, or utility account access. If landlord won't share, a lease showing the allocation method is sufficient — we can estimate from there.</td></tr>
+    <tr><td class="item">KBH-007</td><td>Reading, PA</td></tr>
+    <tr><td class="item">KBH-009</td><td>Newark, DE</td></tr>
+    <tr><td class="item">KBH-012</td><td>Annapolis, MD</td></tr>
+    <tr><td class="item">KBH-014</td><td>Marlton, NJ</td></tr>
+    <tr><td class="item">KBH-016</td><td>Woodbridge, VA</td></tr>
+    <tr><td class="item">KBH-022</td><td>Hagerstown, MD</td><td>Opened Nov 2025 — any utility data available (even 1-2 months). If none, confirm sq ft so we can estimate.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week1">Week 1</span>
+      <span class="title">R-08: Ridgeline Las Vegas Office Data</span>
+    </div>
+    <span class="owner-tag owner-portco">Christine Albright, CFO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">The Las Vegas office (opened Jan 2025) is missing entirely from the facility database. We need it for Scope 1+2 completeness.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th></tr></thead>
+    <tbody>
+    <tr><td class="item">2025 electricity (kWh), natural gas (therms), and fleet gasoline (gallons) for the Las Vegas office</td><td>Same format as other Ridgeline facilities in the CSV</td></tr>
+    <tr><td class="item">Office square footage and employee headcount</td><td>Email</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TIER 3: WEEK 2 -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Tier 3</span> Week 2 — Needed to Begin Steps 2 &amp; 3</h2>
+<p class="memo-body muted">These are the strategic and financial inputs that turn a baseline into an actionable climate strategy. We understand these are more sensitive and may require deal team involvement. Happy to work with whatever level of detail you're comfortable sharing.</p>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-09: Financial Summary — Priority Portcos</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah / Deal Leads</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">We need financial context to size decarbonization investments and calculate carbon intensity metrics. Without this, Step 3 cannot begin. We can work with rounded or banded figures if exact numbers require IC approval.</div>
+    <table>
+    <thead><tr><th>Portco</th><th>What We Need</th><th>Minimum Acceptable</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Meridian Business Solutions</td><td>2025 Revenue, EBITDA, annual energy costs, planned capex</td><td>Revenue band (e.g., "$80-100M"), EBITDA margin range, total utility spend</td></tr>
+    <tr><td class="item">Sterling Precision Mfg</td><td>2025 Revenue, EBITDA, annual energy costs, planned capex</td><td>Same — revenue band, margin range, utility spend. Energy is likely 5-10% of COGS for a precision manufacturer — even knowing COGS would help.</td></tr>
+    <tr><td class="item">Keystone Behavioral Health</td><td>2025 Revenue (or run-rate), EBITDA (or margin target), planned capex from 100-day plan</td><td>Revenue run-rate and growth target. At 100-day stage, exact financials may be preliminary — directional is fine.</td></tr>
+    </tbody>
+    </table>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">For the remaining 7 portcos: Revenue and EBITDA sufficient for carbon intensity (mt CO2e / $M revenue). This can come from Sarah's team rather than individual portcos.</p>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-10: Value Creation Plans — Priority Portcos</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah / Deal Leads</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">Climate initiatives compete for the same capex and management attention as VCP initiatives. We need to understand what's already planned so we can align, not conflict.</div>
+    <table>
+    <thead><tr><th>Portco</th><th>What We Need</th><th>Alternative</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Meridian</td><td>VCP or exit preparation roadmap — key initiatives, timeline, capex allocation</td><td rowspan="3">If formal VCPs aren't shareable, a <strong>30-minute call with each deal lead</strong> covering: growth trajectory, planned capex, facility expansion/consolidation, and any operational efficiency initiatives. We'll take notes and confirm back.</td></tr>
+    <tr><td class="item">Sterling</td><td>VCP — especially any planned equipment upgrades, facility expansions, or efficiency programs</td></tr>
+    <tr><td class="item">Keystone</td><td>100-day plan — facility buildout schedule, technology platform decisions, staffing growth targets</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-11: Monthly Utility Data — Priority Portcos</span>
+    </div>
+    <span class="owner-tag owner-portco">Portco CFOs / Finance</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">All 10 portcos currently report annual totals only. Monthly data reveals seasonal patterns that drive decarbonization economics — heating peaks, cooling peaks, and baseload.</div>
+    <table>
+    <thead><tr><th>Portco</th><th>What We Need</th><th>How to Get It</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Sterling (3 facilities)</td><td>Monthly kWh and therms for Jan-Dec 2025</td><td>Utility account online portal export (most Ohio utilities offer CSV download). Or: 12 monthly bill PDFs per facility.</td></tr>
+    <tr><td class="item">Meridian (16 facilities)</td><td>Monthly kWh and therms for Jan-Dec 2025</td><td>If 16 facilities is too many, start with the top 5 by consumption: Chicago HQ, Miami, Houston, Phoenix, Denver.</td></tr>
+    <tr><td class="item">Keystone (22 clinics)</td><td>Monthly kWh for Jan-Dec 2025</td><td>Start with the 8 clinics that have actual utility data (not the 6 estimated ones). Property management company may be able to pull all at once.</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-12: Sterling Process Energy Breakdown</span>
+    </div>
+    <span class="owner-tag owner-portco">Derek Williams, COO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">Sterling is the highest-value decarbonization target (7.3M kWh, 324K therms). We need to know where the energy goes to identify the highest-ROI efficiency measures.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Approximate energy breakdown by process: CNC machining, heat treatment furnaces, compressed air, lighting/HVAC, other</td><td>Even rough percentages are helpful (e.g., "furnaces ~40%, CNC ~30%"). A prior energy audit report would be ideal. Alternatively, a 30-minute call with the Akron plant manager.</td></tr>
+    <tr><td class="item">R-22 system replacement plan for Akron (50 lbs installed, banned refrigerant)</td><td>Any planned HVAC replacement timeline or capital approval status</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-13: Keystone Therapist Mileage Data</span>
+    </div>
+    <span class="owner-tag owner-portco">Jennifer Martinez, COO</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">35% of therapy sessions are in-home. Our estimate: ~490,000 miles/year of therapist driving. This is likely Keystone's largest single emission source — larger than all facility electricity combined.</div>
+    <table>
+    <thead><tr><th>What We Need (any one of these)</th><th>Why</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Option A: 2025 mileage reimbursement records from HR/payroll</td><td>Best source — actual miles driven, already tracked for reimbursement</td></tr>
+    <tr><td class="item">Option B: Number of in-home therapists, average daily visits, and average distance between visits</td><td>Allows us to build a bottom-up estimate</td></tr>
+    <tr><td class="item">Option C: Total in-home visits in 2025 and average service radius per clinic</td><td>Minimum for a directional Scope 3 Category 7 estimate</td></tr>
+    </tbody>
+    </table>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;"><strong>Bonus:</strong> If Keystone is implementing a scheduling/routing platform as part of the 100-day plan, we should embed mileage tracking from the start. Much cheaper than retrofitting it later.</p>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-week2">Week 2</span>
+      <span class="title">R-14: Prior LP Communications on ESG/Climate</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah / IR</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">We need to know what Northwood has already told LPs about climate so we don't contradict it. If nothing exists, that's actually useful — it means we're building the inaugural narrative.</div>
+    <table>
+    <thead><tr><th>What We Need</th><th>Format</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Any completed LP questionnaires from the past 2 years (ILPA, PRI, or custom LP requests)</td><td>PDF / Word / email</td></tr>
+    <tr><td class="item">Any annual ESG or sustainability update sent to LPs</td><td>PDF / slide deck</td></tr>
+    <tr><td class="item">If none exist: confirmation that this will be Northwood's first formal climate disclosure</td><td>Email</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TIER 4: WHEN AVAILABLE -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Tier 4</span> When Available — Improves Accuracy &amp; Completeness</h2>
+<p class="memo-body muted">These items strengthen the analysis but don't block our progress. We'll use industry estimates as placeholders and swap in actuals when they arrive.</p>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-ongoing">When Available</span>
+      <span class="title">R-15: Waste Manifests / Hauler Data</span>
+    </div>
+    <span class="owner-tag owner-portco">Multiple Portcos</span>
+  </div>
+  <div class="request-card-body">
+    <table>
+    <thead><tr><th>Portco</th><th>What We Need</th><th>Priority</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Sterling</td><td>Waste hauler invoices (metal chips, coolant, chemicals) — tonnage and disposal method</td><td>High — manufacturing waste is likely material for Scope 3</td></tr>
+    <tr><td class="item">Harvest Ridge</td><td>Food waste tonnage and disposal method (composting, landfill, anaerobic digestion). Also: wastewater discharge volumes.</td><td>High — $185K disposal cost suggests significant volumes</td></tr>
+    <tr><td class="item">Clearview</td><td>Hazardous waste manifests (they exist — Clearview is an environmental services company, EPA-regulated)</td><td>Medium — manifests are required records, should be readily available</td></tr>
+    <tr><td class="item">NovaCare</td><td>Medical waste volumes (regulated medical waste contractor invoices)</td><td>Medium</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-ongoing">When Available</span>
+      <span class="title">R-16: Scope 3 Screening Inputs</span>
+    </div>
+    <span class="owner-tag owner-sarah">Sarah + Portco Finance</span>
+  </div>
+  <div class="request-card-body">
+    <div class="why">For the Scope 3 screening in our proposal scope. We can run initial screens using industry benchmarks, but portco-specific data produces more actionable results.</div>
+    <table>
+    <thead><tr><th>Data Item</th><th>Portcos</th><th>Source</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Total procurement spend by major category (top 5-10 vendors or categories)</td><td>Sterling, Harvest Ridge (material-intensive)</td><td>AP system / procurement</td></tr>
+    <tr><td class="item">Business travel spend or miles (air, rail, car rental)</td><td>All portcos with travel programs</td><td>Travel management company or corporate card data</td></tr>
+    <tr><td class="item">Ridgeline managed portfolio: facility-level energy data for managed properties (18M sq ft / 285M kWh)</td><td>Ridgeline only</td><td>Property management system — likely already tracked for tenant billing</td></tr>
+    <tr><td class="item">Patriot temp worker placement data: daily placements by location, average commute distance</td><td>Patriot only</td><td>Staffing platform / dispatch system</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="request-card">
+  <div class="request-card-header">
+    <div>
+      <span class="priority-badge p-ongoing">When Available</span>
+      <span class="title">R-17: Remaining Portco Data Fixes</span>
+    </div>
+    <span class="owner-tag owner-portco">Multiple Portcos</span>
+  </div>
+  <div class="request-card-body">
+    <table>
+    <thead><tr><th>Portco</th><th>Contact</th><th>What We Need</th></tr></thead>
+    <tbody>
+    <tr><td class="item">Patriot</td><td>Scott Henderson</td><td>Landlord utility data for Evansville IN (PSS-009) and Rockford IL (PSS-014) — currently zero</td></tr>
+    <tr><td class="item">NovaCare</td><td>Michael Park</td><td>Confirm Baltimore clinic (NC-010) size — 312K kWh is 3.5x median. Is this a larger facility?</td></tr>
+    <tr><td class="item">Meridian</td><td>Patricia Wells</td><td>Shared-meter allocation documentation for New York and Boston offices</td></tr>
+    <tr><td class="item">Harvest Ridge</td><td>Thomas Nguyen</td><td>Q1 2026 utility bills (Jan-Mar) to complete full 12-month rolling period. Also: R-404A recharge quantities for cold storage.</td></tr>
+    <tr><td class="item">Keystone</td><td>William Park (CFO)</td><td>Review of energy and cost data when billing platform transition stabilizes</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SUMMARY CHECKLIST -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Summary</span> Action Checklist by Owner</h2>
+
+<h3>Sarah Mitchell (Northwood)</h3>
+<ul class="checklist">
+  <li><strong>R-01:</strong> Provide CC environment access (or authorize us to set one up)</li>
+  <li><strong>R-02:</strong> Assign a co-build partner from your team</li>
+  <li><strong>R-09:</strong> Provide financial summaries for 3 priority portcos (or arrange deal lead calls)</li>
+  <li><strong>R-10:</strong> Share VCPs or schedule 30-min calls with deal leads</li>
+  <li><strong>R-14:</strong> Share any prior LP ESG/climate communications</li>
+  <li><strong>R-16:</strong> Coordinate Scope 3 screening inputs across portcos</li>
+</ul>
+
+<h3>Portco Contacts — Quick Responses (Email / 5 min)</h3>
+<ul class="checklist">
+  <li><strong>R-03:</strong> Patricia Wells (Meridian) — fleet vehicle ownership classification</li>
+  <li><strong>R-04:</strong> Michael Park (NovaCare) — confirm unit swap correction</li>
+  <li><strong>R-05:</strong> Derek Williams (Sterling) — confirm facility allocation, send Dec bills</li>
+  <li><strong>R-08:</strong> Christine Albright (Ridgeline) — Las Vegas office data</li>
+</ul>
+
+<h3>Portco Contacts — Data Gathering (30 min - 2 hrs)</h3>
+<ul class="checklist">
+  <li><strong>R-06:</strong> Scott Henderson (Patriot) — fuel card data and vehicle inventory</li>
+  <li><strong>R-07:</strong> Jennifer Martinez (Keystone) — utility data for 7 clinics</li>
+  <li><strong>R-11:</strong> Portco CFOs — monthly utility data for priority portcos</li>
+  <li><strong>R-12:</strong> Derek Williams (Sterling) — process energy breakdown</li>
+  <li><strong>R-13:</strong> Jennifer Martinez (Keystone) — therapist mileage data</li>
+</ul>
+
+<!-- ============================================================ -->
+<!-- RECOMMENDATION: PORTCO SELECTION -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Recommendation</span> Priority Portco Selection Review</h2>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin:16px 0;">
+  <p style="font-size:14px;color:var(--text);margin-bottom:14px;">Sarah, now that we've completed the data quality assessment across all 10 companies, we want to share our thinking on the priority portco selection before we go deeper.</p>
+
+  <p style="font-size:14px;color:var(--text);margin-bottom:14px;">Our proposal selected <strong>Meridian</strong>, <strong>Sterling</strong>, and <strong>Keystone</strong> based on three criteria: status spectrum (near-exit / mid-hold / 100-day), sector diversity, and at least one climate-intensive operation. Having now reviewed the data, here's where each stands:</p>
+
+  <table style="margin:16px 0;">
+  <thead><tr><th>Portco</th><th>Data Quality</th><th>Strategic Rationale</th><th>Our View</th></tr></thead>
+  <tbody>
+  <tr>
+    <td class="item">Meridian Business Solutions</td>
+    <td><span style="color:var(--green);font-weight:600;">4 / 5</span></td>
+    <td style="color:var(--text-muted);">Exit prep — strong data, minor issues (fleet boundary, shared meters). Baseline calculation-ready after two quick clarifications.</td>
+    <td style="color:var(--green);font-weight:600;">Keep. No concerns.</td>
+  </tr>
+  <tr>
+    <td class="item">Sterling Precision Mfg</td>
+    <td><span style="color:var(--green);font-weight:600;">4 / 5</span></td>
+    <td style="color:var(--text-muted);">Climate-intensive mid-hold — highest energy consumption in the portfolio. Facility allocation issue resolvable with one email. Process energy breakdown needed for Step 3 but doesn't block baseline.</td>
+    <td style="color:var(--green);font-weight:600;">Keep. Strongest decarbonization story.</td>
+  </tr>
+  <tr>
+    <td class="item">Keystone Behavioral Health</td>
+    <td><span style="color:var(--red);font-weight:600;">2 / 5</span></td>
+    <td style="color:var(--text-muted);">100-day stage — worst data quality in the portfolio. 63% Grade C, 6 estimated clinics, no CFO review, no refrigerant inventory, no therapist mileage data.</td>
+    <td style="color:var(--yellow);font-weight:600;">Keep — but the rationale has shifted. See below.</td>
+  </tr>
+  </tbody>
+  </table>
+
+  <h3 style="margin-top:20px;">Why We're Keeping Keystone Despite the Data Gap</h3>
+  <p style="font-size:14px;color:var(--text);margin-bottom:10px;">Keystone's poor data quality is precisely what makes it the most valuable priority portco for this engagement. Here's the logic:</p>
+  <ul style="font-size:13px;color:var(--text-muted);padding-left:20px;margin-bottom:14px;">
+    <li style="margin-bottom:8px;"><strong style="color:var(--text);">The 100-day use case is unique.</strong> Keystone is the only portco where the operational systems are being designed right now. We can embed climate data collection into whatever HR, scheduling, and facility management platforms they're implementing — rather than retrofitting it later. No other portco offers this.</li>
+    <li style="margin-bottom:8px;"><strong style="color:var(--text);">Bad data proves the need.</strong> If we swap Keystone for a portco with clean data (Trident already self-calculated emissions, Clearview's ESG is their business), we produce a nicer baseline but miss the opportunity to demonstrate what your team's data collection infrastructure should look like going forward. The deliverable for Keystone isn't a baseline — it's a blueprint.</li>
+    <li style="margin-bottom:8px;"><strong style="color:var(--text);">The Scope 3 finding is differentiated.</strong> Keystone's in-home therapy model (35% of sessions, ~490,000 estimated annual miles) is likely its largest emission source — potentially exceeding all facility electricity combined. That's the kind of insight that changes how a portco thinks about its operations. You don't find that in a clean dataset.</li>
+    <li style="margin-bottom:8px;"><strong style="color:var(--text);">Three portcos hedges against this risk.</strong> We selected three precisely so that if one portco's data is thin, the other two still produce strong results. Meridian and Sterling will carry the quantitative baseline. Keystone carries the architecture and design story.</li>
+  </ul>
+
+  <h3>What Changes for Keystone</h3>
+  <p style="font-size:14px;color:var(--text);margin-bottom:10px;">The deliverable mix shifts. For Meridian and Sterling, we produce a full GHG Protocol-aligned baseline with decarbonization pathways. For Keystone, the primary deliverable is the data collection architecture — the system design that makes future baselines reliable. We'll still calculate a Keystone baseline from available data, but it will carry more caveats and wider uncertainty bands.</p>
+
+  <p style="font-size:14px;color:var(--text);margin-bottom:10px;">If Keystone's data doesn't materially improve by Week 3 (i.e., R-07 and R-13 don't come back), we'll pivot: deeper analysis on Meridian and Sterling, lighter architecture-focused scope on Keystone. You'll see this coming — we won't surprise you.</p>
+
+  <h3>Optional: Consider Adding a Fourth Portco</h3>
+  <p style="font-size:14px;color:var(--text);margin-bottom:10px;">One company stood out in our data assessment as a low-effort, high-insight addition:</p>
+
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:12px 0;">
+    <p style="font-size:14px;color:#fff;font-weight:700;margin-bottom:6px;">Harvest Ridge Foods (Fund II) — Data Quality: 4/5</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Food manufacturing brings a sector we don't currently cover and introduces the strongest Scope 3 Category 5 story in the portfolio — $185K in annual food waste disposal costs with no tonnage data, plus an R-404A refrigerant system (GWP 3,922) where even small leaks are material for Scope 1. The data is mostly calculation-ready after a minor CSV formatting fix.</p>
+    <p style="font-size:13px;color:var(--text-muted);">The marginal effort is low: Harvest Ridge's 5 facilities have Grade A utility bill data. Including them in the Scope 1+2 baseline adds perhaps half a day of calculation work. The waste and refrigerant data we've requested (R-15, R-17) would be needed anyway for the portfolio-wide Scope 3 screening.</p>
+    <p style="font-size:13px;color:var(--yellow);margin-top:8px;font-weight:600;">This is your call, Sarah. Adding a fourth portco expands scope and could affect timeline. But if bandwidth allows, Harvest Ridge is the highest-return addition.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CLOSING -->
+<!-- ============================================================ -->
+<div class="closing">
+  <p>Sarah, we know this is a lot of items. That's expected at this stage — we're building something comprehensive from a standing start. The good news is that none of this is unusual. Every PE firm we've worked with hits the same data gaps in Week 1.</p>
+  <p>The Tier 1 items are the ones we need immediately — and they're all quick actions. Tiers 2 and 3 can flow in over the next two weeks as your team's bandwidth allows. We'll start building with what we have and swap in actuals as they arrive.</p>
+  <p>Happy to jump on a 15-minute call to walk through any of this if that's easier than email.</p>
+  <div class="sig">
+    <div class="name">Kith Consulting — Climate Engagement Team</div>
+    kithclimate.com
+  </div>
+</div>
+
+<div class="footer">
+  Kith Consulting &bull; Northwood Capital Partners Engagement &bull; Step 1, Deliverable 5 &bull; March 26, 2026
+</div>
+
+</body>
+</html>

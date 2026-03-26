@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deliverable 4: Gap Analysis — Northwood Capital</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232735; --border: #2e3345;
+    --text: #e2e4ea; --text-muted: #8b8fa3; --accent: #5bb8a4; --header-bg: #15171f;
+    --green: #4caf50; --yellow: #e8a84c; --red: #e85d5d; --orange: #e8724c; --none: #555a6e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 32px 48px; max-width: 1600px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; }
+  nav { display: flex; gap: 4px; margin-bottom: 24px; padding: 8px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; flex-wrap: wrap; }
+  nav a { padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+  nav a.active { background: var(--accent); color: var(--bg); }
+  nav a.ready { color: var(--text-muted); border: 1px solid var(--border); }
+  nav a.ready:hover { background: var(--surface2); color: var(--text); }
+  nav a.disabled { color: var(--none); border: 1px solid var(--border); pointer-events: none; }
+  .meta-bar { display: flex; gap: 32px; margin-bottom: 36px; padding: 16px 20px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+  .meta-value { font-size: 15px; font-weight: 600; color: #fff; }
+  h2 { font-size: 18px; font-weight: 600; color: #fff; margin: 40px 0 6px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 .tnum { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 24px 0 8px 0; }
+  .section-note { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
+  thead th { background: var(--header-bg); color: var(--accent); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 10px 12px; vertical-align: top; }
+  .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; }
+
+  /* Gap status indicators */
+  .gap-have { color: var(--green); font-weight: 600; }
+  .gap-partial { color: var(--yellow); font-weight: 600; }
+  .gap-missing { color: var(--red); font-weight: 600; }
+  .gap-na { color: var(--none); }
+  .gap-icon { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .gap-icon.have { background: var(--green); }
+  .gap-icon.partial { background: var(--yellow); }
+  .gap-icon.missing { background: var(--red); }
+  .gap-icon.na { background: var(--none); }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0 32px 0; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .summary-card .num { font-size: 28px; font-weight: 700; }
+  .summary-card .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  .gap-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .gap-card.critical { border-left: 3px solid var(--red); }
+  .gap-card.high { border-left: 3px solid var(--orange); }
+  .gap-card.medium { border-left: 3px solid var(--yellow); }
+  .gap-card.low { border-left: 3px solid #7ba5d0; }
+  .gap-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .gap-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .gap-portco { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .gap-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .gap-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); margin-bottom: 6px; font-weight: 600; }
+  .gap-section p, .gap-section ul { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .gap-section ul { padding-left: 16px; }
+  .gap-section li { margin-bottom: 4px; }
+
+  .sev { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+  .sev-critical { background: rgba(232,93,93,0.2); color: var(--red); border: 1px solid rgba(232,93,93,0.3); }
+  .sev-high { background: rgba(232,114,76,0.2); color: var(--orange); border: 1px solid rgba(232,114,76,0.3); }
+  .sev-medium { background: rgba(232,168,76,0.15); color: var(--yellow); border: 1px solid rgba(232,168,76,0.25); }
+  .sev-low { background: rgba(107,155,210,0.1); color: #7ba5d0; border: 1px solid rgba(107,155,210,0.2); }
+
+  /* Proposal mapping table */
+  .proposal-map { margin: 20px 0; }
+  .proposal-map td:first-child { font-weight: 600; color: var(--text); min-width: 200px; }
+  .proposal-map td:nth-child(2) { min-width: 120px; }
+
+  /* Matrix table */
+  .matrix-table { font-size: 12px; }
+  .matrix-table th { font-size: 10px; padding: 8px 6px; text-align: center; }
+  .matrix-table td { text-align: center; padding: 8px 6px; }
+  .matrix-table td:first-child { text-align: left; font-weight: 600; color: var(--text); min-width: 180px; }
+  .matrix-table .rotated { writing-mode: vertical-rl; text-orientation: mixed; height: 80px; white-space: nowrap; }
+
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); text-align: center; }
+  @media (max-width: 900px) { body { padding: 16px; } .gap-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="deliverable-1-data-inventory.html" class="ready">1 Data Inventory</a>
+  <a href="deliverable-2-data-quality.html" class="ready">2 Quality Assessment</a>
+  <a href="deliverable-3-error-log.html" class="ready">3 Error Log</a>
+  <a href="deliverable-4-gap-analysis.html" class="active">4 Gap Analysis</a>
+  <a href="deliverable-5-data-ask.html" class="ready">5 Data Ask</a>
+  <a href="index.html" class="ready">Next Steps</a>
+</nav>
+
+<h1>Deliverable 4: <span>Gap Analysis</span></h1>
+<p class="subtitle">Northwood Capital Partners — Climate Data Collection &amp; Gap Assessment</p>
+
+<div class="meta-bar">
+  <div class="meta-item"><span class="meta-label">Prepared by</span><span class="meta-value">Kith Consulting</span></div>
+  <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">March 26, 2026</span></div>
+  <div class="meta-item"><span class="meta-label">Framework</span><span class="meta-value">GHG Protocol Corporate Standard</span></div>
+  <div class="meta-item"><span class="meta-label">Scope</span><span class="meta-value">10 Portfolio Companies / 2 Funds</span></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: PROPOSAL MAPPING -->
+<!-- ============================================================ -->
+<h2><span class="tnum">1</span> Proposal vs. Reality: What We Asked For vs. What We Got</h2>
+<p class="section-note">In our proposal, we listed eight items we'd need from Northwood to begin Step 1. Here's the scorecard.</p>
+
+<table class="proposal-map">
+<thead><tr><th>What We Asked For</th><th>Status</th><th>What We Actually Received</th><th>Gap Impact</th></tr></thead>
+<tbody>
+<tr>
+  <td>Utility bills (electricity, gas) — 12 months per portco</td>
+  <td><span class="gap-partial">Partial</span></td>
+  <td>No actual bill PDFs. Received aggregated annual figures via CSV (139 rows) and questionnaires. Monthly granularity not available for any portco. Some facilities have estimates, not actuals.</td>
+  <td>Cannot validate rate structures, demand charges, or seasonal patterns. Annual totals are workable for baseline but limit decarbonization pathway analysis.</td>
+</tr>
+<tr>
+  <td>Fleet and fuel purchase records</td>
+  <td><span class="gap-partial">Partial</span></td>
+  <td>Fleet gasoline totals in CSV for portcos with vehicles. No fuel card statements, no vehicle inventories, no mileage logs. Significant contradictions (Patriot 76K gal, Meridian "no fleet" but CSV has fuel).</td>
+  <td>Cannot validate fleet Scope 1 for Patriot or Meridian. Diesel vs. gasoline split unclear for some portcos.</td>
+</tr>
+<tr>
+  <td>Waste and recycling manifests</td>
+  <td><span class="gap-missing">Missing</span></td>
+  <td>Qualitative descriptions only in questionnaires (e.g., Sterling: "180 tons metal chips, 12K gal coolant"). No manifests, no hauler invoices, no tonnage records.</td>
+  <td>Cannot calculate Scope 3 Cat 5 (Waste). Cannot assess waste diversion rates. Blocks any waste-related emissions analysis.</td>
+</tr>
+<tr>
+  <td>Existing climate or ESG reports, LP questionnaire responses</td>
+  <td><span class="gap-partial">Partial</span></td>
+  <td>Received Northwood's Climate Data Collection Protocol (internal methodology) and Trident's self-calculated emissions. No prior LP questionnaire responses, no ESG reports, no TCFD disclosures.</td>
+  <td>No historical baseline to compare against. Trident's self-calculation provides a useful cross-check but uses unspecified methodology.</td>
+</tr>
+<tr>
+  <td>Value creation plan for each priority portco</td>
+  <td><span class="gap-missing">Missing</span></td>
+  <td>Not received for any portco. No VCPs, no 100-day plans, no strategic roadmaps.</td>
+  <td>Cannot align climate initiatives with existing value creation priorities. Blocks Step 3 financial integration (decarbonization pathway sizing against VCP capex budgets).</td>
+</tr>
+<tr>
+  <td>High-level financial summary (P&amp;L, balance sheet) per portco</td>
+  <td><span class="gap-missing">Missing</span></td>
+  <td>Not received for any portco. No revenue, no EBITDA, no cost structure data.</td>
+  <td>Cannot size decarbonization investments as % of revenue or EBITDA. Cannot calculate carbon intensity (mt/$M revenue). Blocks Step 3 financial impact analysis.</td>
+</tr>
+<tr>
+  <td>Designated co-build partner from Sarah's team</td>
+  <td><span class="gap-partial">Partial</span></td>
+  <td>Sarah Mitchell (COO) is our primary contact. No individual from her team formally assigned to co-build. Protocol document references "Sustainability Analyst" role but no name attached.</td>
+  <td>No one to co-build the CC data system with. Risks creating a deliverable that isn't maintained post-engagement.</td>
+</tr>
+<tr>
+  <td>Access to Northwood's CC environment</td>
+  <td><span class="gap-missing">Missing</span></td>
+  <td>No CC workspace access provided. All data delivered as flat files (CSV, questionnaires). Protocol references CC as the target platform but no access credentials or workspace URL received.</td>
+  <td>Cannot begin Step 2 (Climate Data System Build) until access is granted. Currently working in Kith's local environment.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="summary-grid">
+  <div class="summary-card"><div class="num" style="color:var(--green);">0</div><div class="label">Fully Received</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--yellow);">4</div><div class="label">Partially Received</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--red);">4</div><div class="label">Not Received</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--accent);">8 / 8</div><div class="label">Items with Gaps</div></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: PORTFOLIO-WIDE GAPS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">2</span> Portfolio-Wide Systematic Gaps</h2>
+<p class="section-note">These gaps affect all or most portcos and represent structural holes in the data environment — not portco-specific issues.</p>
+
+<div class="gap-card critical">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-01: No Monthly Granularity — Annual Totals Only</div>
+      <div class="gap-portco">All 10 Portfolio Companies</div>
+    </div>
+    <span class="sev sev-critical">Critical for Step 3</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Every portco reports annual aggregate electricity, gas, and fuel. No monthly or quarterly breakdowns exist anywhere in the data environment. The CSV has one row per facility with annual totals.</p>
+      <h4>Why It Matters</h4>
+      <ul>
+        <li><strong>Seasonal patterns invisible:</strong> Cannot identify heating vs. cooling peaks, which drives HVAC decarbonization economics</li>
+        <li><strong>Demand charges hidden:</strong> Cannot assess peak demand, which determines solar/battery ROI</li>
+        <li><strong>Trend detection impossible:</strong> Cannot detect month-over-month changes that signal operational issues</li>
+        <li><strong>BAU modeling weakened:</strong> Step 3 BAU projections require understanding of load shape, not just annual totals</li>
+      </ul>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>12 months of utility bill data (kWh, therms, and cost) per facility per portco. Ideally: meter-level data or utility account exports.</p>
+      <h4>Fallback If Unavailable</h4>
+      <p>Quarterly totals would provide seasonal shape. If neither is available, we apply ASHRAE climate zone heating/cooling degree-day profiles to model seasonal allocation from annual totals — lower accuracy but defensible.</p>
+      <h4>Affects</h4>
+      <p>Step 2 dashboard design (monthly trending), Step 3 BAU modeling and decarbonization pathway timing, LP reporting granularity.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card critical">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-02: No Financial Data — P&amp;L and Balance Sheet Missing</div>
+      <div class="gap-portco">All 10 Portfolio Companies</div>
+    </div>
+    <span class="sev sev-critical">Blocks Step 3</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Zero financial data received for any portco. No revenue, EBITDA, operating costs, capex budgets, energy cost breakdowns, or balance sheet items.</p>
+      <h4>Why It Matters</h4>
+      <ul>
+        <li><strong>Carbon intensity metrics:</strong> Cannot calculate mt CO2e per $M revenue — the metric LPs and buyers actually benchmark</li>
+        <li><strong>Decarbonization ROI:</strong> Cannot size investments as % of EBITDA or payback against energy cost savings</li>
+        <li><strong>Materiality screening:</strong> Cannot determine if climate costs are material relative to portco financials</li>
+        <li><strong>Exit narrative:</strong> Cannot build the "ESG creates value" story for Meridian's exit without financial context</li>
+      </ul>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>For the 3 priority portcos (Meridian, Sterling, Keystone): Annual P&amp;L summary (revenue, COGS, EBITDA), annual energy costs, and current capex budget or VCP capex allocation.</p>
+      <p>For the remaining 7: Revenue and EBITDA sufficient for carbon intensity calculation.</p>
+      <h4>Sensitivity</h4>
+      <p>Financial data is sensitive. We can work with <strong>rounded or banded figures</strong> (e.g., "Revenue: $50-60M") if exact numbers require IC approval. The Step 3 model uses ratios, not absolute values.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card critical">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-03: No Value Creation Plans</div>
+      <div class="gap-portco">All 10 Portfolio Companies (priority: Meridian, Sterling, Keystone)</div>
+    </div>
+    <span class="sev sev-critical">Blocks Step 3</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>No VCPs, 100-day plans, or strategic roadmaps received for any portco. We don't know what operational, growth, or capital initiatives are already planned.</p>
+      <h4>Why It Matters</h4>
+      <ul>
+        <li><strong>Alignment:</strong> Climate initiatives compete for the same capex, management attention, and operating budget as VCP initiatives. Without VCPs, we can't identify synergies or conflicts.</li>
+        <li><strong>Growth assumptions:</strong> BAU emissions projections need revenue/capacity growth assumptions. VCPs contain these.</li>
+        <li><strong>Keystone (100-day):</strong> At 100-day stage, the entire operating plan is being designed now. Climate data architecture should be embedded, not bolted on later.</li>
+      </ul>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>VCP or equivalent strategic plan for Meridian, Sterling, and Keystone. Key sections: planned capex, growth targets, operational efficiency initiatives, facility expansion/consolidation plans.</p>
+      <h4>Fallback</h4>
+      <p>If formal VCPs aren't shareable, a <strong>30-minute call with each deal lead</strong> covering growth trajectory, planned capex, and facility changes would provide the inputs we need for BAU modeling.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card high">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-04: No CC Environment Access</div>
+      <div class="gap-portco">Engagement Infrastructure</div>
+    </div>
+    <span class="sev sev-high">Blocks Step 2</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>The proposal specifies building the climate data system in Northwood's CC environment. No workspace access, credentials, or environment URL has been provided. We're currently working locally.</p>
+    </div>
+    <div class="gap-section">
+      <h4>Impact</h4>
+      <p>Step 2 cannot begin in the client environment. If access isn't available by Week 2, we recommend building in Kith's environment first and migrating — but this creates a handoff risk and extra cost.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card high">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-05: No Waste Manifests or Hauler Data</div>
+      <div class="gap-portco">All 10 Portfolio Companies (critical: Sterling, Harvest Ridge, Clearview)</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>No waste manifests, hauler invoices, or waste tonnage records received. Questionnaires provide qualitative descriptions:</p>
+      <ul>
+        <li><strong>Sterling:</strong> 180 tons metal chips, 12K gal spent coolant, 3.5K gal cleaning chemicals — but these are estimates, not manifest data</li>
+        <li><strong>Harvest Ridge:</strong> $185K in food waste disposal costs — but no tonnage, no waste composition</li>
+        <li><strong>Clearview:</strong> Environmental services company — likely has detailed waste data but it wasn't provided</li>
+        <li><strong>NovaCare:</strong> Medical waste generated but no volumes reported</li>
+      </ul>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>For climate purposes: <strong>waste tonnage by disposal method</strong> (landfill, recycling, incineration, composting). Hauler invoices typically have weight tickets. Waste audits, if they exist, would be ideal.</p>
+      <h4>Fallback</h4>
+      <p>EPA WARM model can estimate waste emissions from industry benchmarks (tons per employee or per sq ft), but this produces Grade C data. Priority portcos should provide actuals; remaining 7 can use estimates.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card high">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-06: No Scope 3 Input Data</div>
+      <div class="gap-portco">All 10 Portfolio Companies</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>The data environment contains zero dedicated Scope 3 data. No business travel records, no employee commuting surveys, no purchased goods spend data, no supply chain emissions factors. The only Scope 3-adjacent data points are:</p>
+      <ul>
+        <li>Keystone: 35% of therapy sessions are in-home (implies therapist driving — Cat 7) but no mileage data</li>
+        <li>Ridgeline: Manages 18M sq ft / 285M kWh for clients (Cat 13) but no client energy data provided</li>
+        <li>Sterling: Waste descriptions (Cat 5) but no tonnage</li>
+        <li>Harvest Ridge: Food waste costs but no volumes (Cat 5)</li>
+      </ul>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need (Minimum for Screening)</h4>
+      <p>Per the proposal, Step 1 includes Scope 3 screening — not full quantification. For screening, we need:</p>
+      <ul>
+        <li><strong>Category 1 (Purchased Goods):</strong> Total procurement spend by category — enables spend-based estimation</li>
+        <li><strong>Category 5 (Waste):</strong> Waste tonnage by disposal method (see G-05)</li>
+        <li><strong>Category 6 (Business Travel):</strong> Total travel spend or miles by mode (air, rail, car)</li>
+        <li><strong>Category 7 (Employee Commuting):</strong> Employee count by location (have this) + average commute distance (need survey or ZIP code analysis)</li>
+        <li><strong>Category 13 (Downstream Leased Assets):</strong> Ridgeline managed portfolio energy data</li>
+      </ul>
+      <h4>Fallback</h4>
+      <p>Scope 3 screening can use industry-average intensity factors from EPA EEIO or Exiobase. This produces directional results — sufficient to identify which categories are material and which are negligible.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-07: No Co-Build Partner Formally Assigned</div>
+      <div class="gap-portco">Engagement Structure</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>The proposal calls for someone from Sarah's team to co-build the CC data system — learning by doing, creating internal capability and an owner who maintains it post-engagement. No individual has been assigned.</p>
+    </div>
+    <div class="gap-section">
+      <h4>Impact</h4>
+      <p>Without a co-build partner, we build alone, hand over documentation, and hope someone picks it up. This is the #1 reason consulting engagements fail to stick. We need a named person by Week 2.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-08: No Prior ESG Reports or LP Questionnaire Responses</div>
+      <div class="gap-portco">Northwood Capital (Fund Level)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>No historical ESG reports, TCFD disclosures, or completed LP questionnaire responses. We don't know what Northwood has told LPs previously about climate, which means we risk contradicting prior commitments or missing stated goals.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>Any LP questionnaire responses from the last 2 years (ILPA template, PRI, or custom LP requests). Any annual ESG update sent to LPs. If these don't exist, that's a data point too — it means Northwood is starting from scratch on LP climate reporting.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: PORTCO-SPECIFIC GAPS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">3</span> Priority Portco Gaps</h2>
+<p class="section-note">Gaps specific to the three priority portcos that go beyond the portfolio-wide issues above.</p>
+
+<!-- MERIDIAN -->
+<h3 style="color:var(--accent);margin-top:28px;">Meridian Business Solutions (Fund I — Exit Prep)</h3>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-09: Shared-Meter Allocation Methodology Undocumented</div>
+      <div class="gap-portco">Meridian Business Solutions | MBS-005 (New York), MBS-006 (Boston)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>New York and Boston facilities share building meters. The gas allocation between questionnaire (142K therms) and CSV (130K therms) differs by 9.6%, suggesting different allocation methods were used. No documentation of how the allocation was calculated.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>Lease documents showing allocation methodology (sq ft pro-rata, sub-metering, or landlord estimate). For exit preparation, a buyer's diligence team will ask how shared-meter allocations were determined. We need the answer documented.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-10: Fleet Boundary Classification Unresolved</div>
+      <div class="gap-portco">Meridian Business Solutions | 5 facilities with gasoline</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Questionnaire says "no fleet." CSV shows 3,200 gal across 5 facilities. We don't know if these are company-owned vehicles (Scope 1), leased vehicles (Scope 1), or personal vehicles with mileage reimbursement (Scope 3 Cat 7). This is a boundary question, not a data error.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>Vehicle ownership documentation: company-owned/leased = Scope 1. Personal with mileage reimbursement = Scope 3 Cat 7. One email to the CFO resolves this.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STERLING -->
+<h3 style="color:var(--accent);margin-top:28px;">Sterling Precision Manufacturing (Fund I — Mid-Hold)</h3>
+
+<div class="gap-card high">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-11: No Process-Level Energy Breakdown</div>
+      <div class="gap-portco">Sterling Precision Manufacturing | SPM-001 (Akron), SPM-002 (Elyria)</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Sterling is the most energy-intensive portco (7.3M kWh electricity, 324K therms gas). We have facility-level totals but no breakdown by process: CNC machining, heat treatment furnaces, compressed air, lighting, HVAC, etc.</p>
+      <h4>Why It Matters</h4>
+      <p>The Sterling value story is cost savings from decarbonization. Without knowing which processes consume the most energy, we can't identify the highest-ROI efficiency measures. Heat treatment furnaces vs. CNC machines vs. compressed air systems have completely different decarbonization economics.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>Process-level energy allocation — even a rough estimate (e.g., "furnaces ~40%, CNC ~30%, compressed air ~15%, other ~15%"). A facility energy audit report would be ideal. If none exists, a 30-minute call with the plant manager would suffice.</p>
+      <h4>Fallback</h4>
+      <p>Apply DOE Manufacturing Energy Consumption Survey (MECS) profiles for NAICS 3329 (Other Fabricated Metal Product) to estimate process allocation. This is standard practice but less accurate than facility-specific data.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-12: R-22 Phase-Out Timeline Missing</div>
+      <div class="gap-portco">Sterling Precision Manufacturing | SPM-001 (Akron)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Akron has 50 lbs of R-22 (GWP 1,810) — a refrigerant banned for new production since Jan 2020. The questionnaire notes an 8 lb recharge in Aug 2024. No information on the replacement plan or timeline.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>HVAC replacement plan for the R-22 system. This is both a regulatory compliance issue (supply of R-22 is finite and increasingly expensive) and a decarbonization opportunity. Replacement with a modern system reduces both direct emissions (lower GWP refrigerant) and indirect emissions (higher efficiency). This feeds directly into the Sterling decarbonization pathway in Step 3.</p>
+    </div>
+  </div>
+</div>
+
+<!-- KEYSTONE -->
+<h3 style="color:var(--accent);margin-top:28px;">Keystone Behavioral Health (Fund II — 100-Day)</h3>
+
+<div class="gap-card high">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-13: In-Home Therapy Mileage — Major Scope 3 Blind Spot</div>
+      <div class="gap-portco">Keystone Behavioral Health | All facilities</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>35% of Keystone's therapy sessions are in-home — therapists drive personal vehicles to client homes. With ~340 employees across 22 clinics, this likely represents 50-80 therapists driving daily. No mileage data, no reimbursement records, no route information exists.</p>
+      <h4>Why It Matters</h4>
+      <p>This is likely Keystone's single largest emission source after facility electricity. A rough estimate: 65 therapists x 30 miles/day x 250 days = ~487,500 miles/year = ~195 mt CO2e. This could exceed Keystone's entire Scope 1 + 2 footprint.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>Option A (ideal): Mileage reimbursement records from HR/payroll — total miles reimbursed in 2025 by employee or region.</p>
+      <p>Option B (good): Number of in-home therapists, average daily visits, and average distance between visits.</p>
+      <p>Option C (minimum): Total number of in-home visits in 2025 and average ZIP code distance from clinic to visit.</p>
+      <h4>Why Now</h4>
+      <p>Keystone is at 100-day stage — the operational systems are being designed right now. If we build the climate data architecture without a mileage tracking system, we'll have to retrofit it later. Better to embed it in whatever HR/scheduling platform they're implementing.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-14: HVAC Refrigerant Inventory Missing</div>
+      <div class="gap-portco">Keystone Behavioral Health | All 22 clinics</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>No refrigerant data for any Keystone facility. Zero entries in the CSV for refrigerant_type or refrigerant_lbs. The questionnaire doesn't address refrigerants at all (different format, no CFO review).</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>HVAC equipment inventory or property management records showing refrigerant type and installed charge per clinic. Most leased clinic spaces have standard rooftop units — property managers typically maintain these records. Estimate: 22 clinics x ~15 lbs R-410A average = ~330 lbs total installed, ~6.6 lbs leaked/year at 2% rate = ~6 mt CO2e. Small but needed for completeness.</p>
+    </div>
+  </div>
+</div>
+
+<div class="gap-card medium">
+  <div class="gap-header">
+    <div>
+      <div class="gap-title">G-15: CFO Financial Review Not Completed</div>
+      <div class="gap-portco">Keystone Behavioral Health</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="gap-body">
+    <div class="gap-section">
+      <h4>What's Missing</h4>
+      <p>Questionnaire was submitted by the COO (Jennifer Martinez) with note that CFO (William Park) was unavailable due to billing platform implementation. Energy cost figures and financial data were not reviewed by finance.</p>
+    </div>
+    <div class="gap-section">
+      <h4>What We Need</h4>
+      <p>CFO review of the energy and facility cost sections when the billing platform transition stabilizes. This is a validation gap, not a data gap — the COO's operational data is likely accurate but the financial cross-check is missing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: REMAINING PORTCO GAPS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">4</span> Non-Priority Portco Gaps</h2>
+<p class="section-note">Material gaps for the 7 remaining portcos that should be addressed during the data request cycle.</p>
+
+<table>
+<thead><tr><th>Portco</th><th>Fund</th><th>Gap ID</th><th>Gap Description</th><th>Priority</th><th>Affects</th></tr></thead>
+<tbody>
+<tr><td style="font-weight:600;">NovaCare Health</td><td>I</td><td>G-16</td><td>RehabWorks integration completeness — 4 acquisition clinics may have additional data in prior-owner format not yet migrated</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 1+2 accuracy for 13% of facilities</td></tr>
+<tr><td style="font-weight:600;">NovaCare Health</td><td>I</td><td>G-17</td><td>Medical waste volumes — generated but not quantified. Needed for Scope 3 Cat 5.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 3 screening</td></tr>
+<tr><td style="font-weight:600;">Trident IT</td><td>I</td><td>G-18</td><td>Emissions calculation methodology unspecified — Trident self-calculated but didn't document emission factors, eGRID subregions, or GWP values used</td><td><span class="sev sev-medium">Medium</span></td><td>Cannot validate their existing numbers</td></tr>
+<tr><td style="font-weight:600;">Trident IT</td><td>I</td><td>G-19</td><td>Cloud/data center energy — IT services company likely has significant cloud infrastructure. No data on provider, usage, or PUE.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 3 Cat 1 (if cloud) or Cat 8 (if colo)</td></tr>
+<tr><td style="font-weight:600;">Clearview Enviro</td><td>II</td><td>G-20</td><td>Lab chemical inventory — environmental services generates hazardous waste from testing. Manifests exist (regulated industry) but weren't provided.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 1 (if chemicals are combusted), Scope 3 Cat 5</td></tr>
+<tr><td style="font-weight:600;">Patriot Staffing</td><td>II</td><td>G-21</td><td>Shuttle bus fuel — 3 locations operate shuttle buses but fuel data "unavailable." May be included in fleet gasoline (see E-05) or genuinely missing.</td><td><span class="sev sev-high">High</span></td><td>Scope 1 boundary and total</td></tr>
+<tr><td style="font-weight:600;">Patriot Staffing</td><td>II</td><td>G-22</td><td>Temporary worker transportation — 1,200+ temp workers placed daily. How they get to job sites is a major Scope 3 Cat 7 question. No data.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 3 Cat 7 (potentially largest category)</td></tr>
+<tr><td style="font-weight:600;">Pinnacle Testing</td><td>II</td><td>G-23</td><td>Limited historical data — early-stage portco, only current-year data. No prior year for trend comparison.</td><td><span class="sev sev-low">Low</span></td><td>Cannot establish trend baseline</td></tr>
+<tr><td style="font-weight:600;">Harvest Ridge</td><td>II</td><td>G-24</td><td>Food waste volumes missing — $185K disposal cost reported but no tonnage or composition. Food manufacturing waste (Cat 5) is likely material.</td><td><span class="sev sev-high">High</span></td><td>Scope 3 Cat 5 — likely top-3 emission category</td></tr>
+<tr><td style="font-weight:600;">Harvest Ridge</td><td>II</td><td>G-25</td><td>Wastewater discharge data — food manufacturing generates significant process wastewater. No volumes or treatment method reported.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 1 (if anaerobic treatment on-site) or Scope 3</td></tr>
+<tr><td style="font-weight:600;">Harvest Ridge</td><td>II</td><td>G-26</td><td>R-404A refrigerant leak — noted in questionnaire but no recharge quantity. R-404A has GWP of 3,922 — even small leaks are material.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 1 — could be significant given high GWP</td></tr>
+<tr><td style="font-weight:600;">Ridgeline Property</td><td>II</td><td>G-27</td><td>Managed portfolio energy data — 18M sq ft / 285M kWh managed for clients. This is by far the largest emissions source in the entire Northwood portfolio (Scope 3 Cat 13) but no facility-level data was provided.</td><td><span class="sev sev-critical">Critical</span></td><td>Scope 3 Cat 13 — dwarfs all other emissions combined</td></tr>
+<tr><td style="font-weight:600;">Ridgeline Property</td><td>II</td><td>G-28</td><td>Las Vegas office data — facility opened Jan 2025, missing entirely from CSV. See also E-13.</td><td><span class="sev sev-medium">Medium</span></td><td>Scope 1+2 completeness</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: GAP COVERAGE MATRIX -->
+<!-- ============================================================ -->
+<h2><span class="tnum">5</span> Gap Coverage Matrix</h2>
+<p class="section-note">Data requirements for a GHG Protocol-aligned climate assessment mapped against what exists in the data environment.</p>
+
+<table class="matrix-table">
+<thead>
+<tr>
+  <th>Data Requirement</th>
+  <th>MBS</th><th>SPM</th><th>KBH</th><th>NCH</th><th>TIS</th>
+  <th>CES</th><th>PSS</th><th>PTI</th><th>HRF</th><th>RPS</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background:var(--surface);"><td colspan="11" style="color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;">Scope 1 &amp; 2 — Direct &amp; Energy</td></tr>
+<tr><td>Electricity (annual kWh)</td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td></tr>
+<tr><td>Electricity (monthly kWh)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Natural gas (annual therms)</td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td></tr>
+<tr><td>Natural gas (monthly therms)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Fleet fuel (gallons by type)</td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td></tr>
+<tr><td>Process fuels (propane, diesel, etc.)</td><td><span class="gap-icon na"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon na"></span></td></tr>
+<tr><td>Refrigerant type &amp; charge (lbs)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Refrigerant recharge records</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Facility square footage</td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td></tr>
+<tr><td>Utility cost data ($)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+
+<tr style="background:var(--surface);"><td colspan="11" style="color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;">Scope 3 — Upstream</td></tr>
+<tr><td>Procurement spend by category</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Waste tonnage by disposal method</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon partial"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Business travel (spend or miles)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Employee commuting (survey or proxy)</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+
+<tr style="background:var(--surface);"><td colspan="11" style="color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;">Scope 3 — Downstream</td></tr>
+<tr><td>Downstream leased asset energy</td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon na"></span></td><td><span class="gap-icon missing"></span></td></tr>
+
+<tr style="background:var(--surface);"><td colspan="11" style="color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;">Financial &amp; Strategic</td></tr>
+<tr><td>Revenue / EBITDA</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Energy cost breakdown</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Value creation plan</td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td><td><span class="gap-icon missing"></span></td></tr>
+<tr><td>Headcount by location</td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td><td><span class="gap-icon have"></span></td></tr>
+</tbody>
+</table>
+
+<div style="display:flex;gap:24px;margin:16px 0 32px 0;font-size:12px;color:var(--text-muted);">
+  <span><span class="gap-icon have"></span> Have — usable data exists</span>
+  <span><span class="gap-icon partial"></span> Partial — data exists but incomplete, estimated, or has quality issues</span>
+  <span><span class="gap-icon missing"></span> Missing — no data in the environment</span>
+  <span><span class="gap-icon na"></span> N/A — not applicable to this portco</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: READINESS ASSESSMENT -->
+<!-- ============================================================ -->
+<h2><span class="tnum">6</span> Step 2 &amp; Step 3 Readiness Assessment</h2>
+<p class="section-note">Can we proceed with the next phases of the engagement given current data gaps?</p>
+
+<table>
+<thead><tr><th style="min-width:180px;">Engagement Phase</th><th>Readiness</th><th>What's Blocking</th><th>Minimum to Proceed</th></tr></thead>
+<tbody>
+<tr>
+  <td style="font-weight:600;">Scope 1 Baseline Calculation</td>
+  <td><span class="gap-partial">Can Proceed with Caveats</span></td>
+  <td>Patriot fleet anomaly (E-05), Meridian fleet boundary (E-06), NovaCare unit swap (E-01). 8 portcos are calculation-ready after Phase 1 fixes.</td>
+  <td>Fix E-01, E-02 internally. Accept E-05/E-06 with placeholder assumptions and flag for client confirmation.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Scope 2 Baseline Calculation</td>
+  <td><span class="gap-partial">Can Proceed with Caveats</span></td>
+  <td>Sterling facility allocation (E-03) affects eGRID subregion assignment. Keystone has 6 estimated facilities (E-07). No monthly data means location-based only (no market-based).</td>
+  <td>Use CSV values for Sterling (trust utility bills). Accept Keystone estimates with Grade C flag. Location-based Scope 2 only.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Scope 3 Screening</td>
+  <td><span class="gap-missing">Cannot Proceed</span></td>
+  <td>Zero Scope 3 input data across all 10 portcos. No procurement spend, no travel data, no commuting data, no waste tonnage.</td>
+  <td>At minimum: total procurement spend by portco (enables spend-based Cat 1 estimate). Employee count by location (have) + commute proxy = Cat 7 estimate. Waste tonnage for Sterling/Harvest Ridge.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Step 2: CC Data System Build</td>
+  <td><span class="gap-missing">Blocked</span></td>
+  <td>No CC environment access (G-04). No co-build partner assigned (G-07).</td>
+  <td>CC workspace access + named co-build partner. Can prototype schema locally but cannot deploy.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Step 3: BAU Emissions Model</td>
+  <td><span class="gap-missing">Blocked</span></td>
+  <td>No financial data (G-02), no VCPs (G-03), no monthly granularity (G-01). Cannot model growth trajectories without revenue/capacity projections.</td>
+  <td>Revenue + EBITDA for 3 priority portcos. Growth assumptions (can come from VCPs or deal lead interviews). Annual energy data sufficient for initial BAU — monthly improves seasonal modeling.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Step 3: Decarbonization Pathways</td>
+  <td><span class="gap-missing">Blocked</span></td>
+  <td>No process-level energy breakdown for Sterling (G-11), no energy costs, no capex budgets. Cannot size investment ROI without financial context.</td>
+  <td>Sterling process energy split (even rough %). Energy costs per portco. Capex budget or VCP allocation for the 3 priority portcos.</td>
+</tr>
+<tr>
+  <td style="font-weight:600;">Step 3: LP Reporting Narrative</td>
+  <td><span class="gap-partial">Can Draft Framework</span></td>
+  <td>No prior LP questionnaire responses (G-08). Don't know what Northwood has already told LPs.</td>
+  <td>Any prior LP communications on ESG/climate. If none exist, we draft the inaugural narrative — actually a cleaner starting point.</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: SUMMARY -->
+<!-- ============================================================ -->
+<h2><span class="tnum">7</span> Summary: 28 Gaps by Priority</h2>
+
+<div class="summary-grid">
+  <div class="summary-card"><div class="num" style="color:var(--red);">4</div><div class="label">Critical / Blocking</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--orange);">6</div><div class="label">High Priority</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--yellow);">15</div><div class="label">Medium Priority</div></div>
+  <div class="summary-card"><div class="num" style="color:#7ba5d0;">3</div><div class="label">Low Priority</div></div>
+</div>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:16px 0;">
+  <h3 style="color:var(--accent);margin-bottom:12px;font-size:14px;">Key Takeaway for Sarah Mitchell</h3>
+  <p style="font-size:14px;color:var(--text);margin-bottom:12px;">
+    Northwood gave us a solid foundation for Scope 1 and Scope 2 baseline calculations — energy data exists for 139 facilities across all 10 portcos. After we fix the errors documented in Deliverable 3, we can produce a defensible Scope 1+2 baseline for 8 of 10 companies within the current data environment.
+  </p>
+  <p style="font-size:14px;color:var(--text);margin-bottom:12px;">
+    What's missing are the layers that turn a baseline into a strategy: financial data to size the opportunity, value creation plans to align priorities, monthly granularity to design interventions, and Scope 3 inputs to see the full picture.
+  </p>
+  <p style="font-size:14px;color:var(--text);">
+    Deliverable 5 translates these gaps into a specific, prioritized data request — organized so that the most urgent items (which unblock Steps 2 and 3) are separated from the items that improve accuracy but don't block progress.
+  </p>
+</div>
+
+<div class="footer">
+  Kith Consulting &bull; Northwood Capital Partners Engagement &bull; Step 1, Deliverable 4 &bull; March 26, 2026
+</div>
+
+</body>
+</html>

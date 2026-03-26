@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deliverable 3: Error Log &amp; Proposed Fixes — Northwood Capital</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232735; --border: #2e3345;
+    --text: #e2e4ea; --text-muted: #8b8fa3; --accent: #5bb8a4; --header-bg: #15171f;
+    --green: #4caf50; --yellow: #e8a84c; --red: #e85d5d; --orange: #e8724c; --none: #555a6e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 32px 48px; max-width: 1600px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; }
+  nav { display: flex; gap: 4px; margin-bottom: 24px; padding: 8px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+  nav a { padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+  nav a.active { background: var(--accent); color: var(--bg); }
+  nav a.ready { color: var(--text-muted); border: 1px solid var(--border); }
+  nav a.ready:hover { background: var(--surface2); color: var(--text); }
+  nav a.disabled { color: var(--none); border: 1px solid var(--border); pointer-events: none; }
+  .meta-bar { display: flex; gap: 32px; margin-bottom: 36px; padding: 16px 20px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+  .meta-value { font-size: 15px; font-weight: 600; color: #fff; }
+  h2 { font-size: 18px; font-weight: 600; color: #fff; margin: 40px 0 6px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 .tnum { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 24px 0 8px 0; }
+  .section-note { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; font-style: italic; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
+  thead th { background: var(--header-bg); color: var(--accent); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 10px 12px; vertical-align: top; }
+  .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; }
+  .desc { color: var(--text-muted); }
+  .desc strong { color: var(--text); font-weight: 600; }
+  .flag { color: var(--red); font-weight: 600; }
+  .warn { color: var(--yellow); font-weight: 600; }
+  .ok { color: var(--green); font-weight: 600; }
+
+  .sev { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+  .sev-critical { background: rgba(232,93,93,0.2); color: var(--red); border: 1px solid rgba(232,93,93,0.3); }
+  .sev-high { background: rgba(232,114,76,0.2); color: var(--orange); border: 1px solid rgba(232,114,76,0.3); }
+  .sev-medium { background: rgba(232,168,76,0.15); color: var(--yellow); border: 1px solid rgba(232,168,76,0.25); }
+  .sev-low { background: rgba(107,155,210,0.1); color: #7ba5d0; border: 1px solid rgba(107,155,210,0.2); }
+
+  .fix-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-top: 6px; }
+  .fix-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .fix-text { font-size: 12px; color: var(--text); }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 20px 0 32px 0; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .summary-card .num { font-size: 28px; font-weight: 700; }
+  .summary-card .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  .error-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .error-card.critical { border-left: 3px solid var(--red); }
+  .error-card.high { border-left: 3px solid var(--orange); }
+  .error-card.medium { border-left: 3px solid var(--yellow); }
+  .error-card.low { border-left: 3px solid #7ba5d0; }
+  .error-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .error-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .error-portco { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .error-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .error-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); margin-bottom: 6px; font-weight: 600; }
+  .error-section p, .error-section ul { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .error-section ul { padding-left: 16px; }
+  .error-section li { margin-bottom: 4px; }
+  .correction-table { font-size: 12px; margin-top: 8px; }
+  .correction-table td { padding: 4px 8px; }
+  .val-wrong { color: var(--red); text-decoration: line-through; }
+  .val-right { color: var(--green); font-weight: 600; }
+
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); text-align: center; }
+  @media (max-width: 900px) { body { padding: 16px; } .error-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="ready" style="margin-right:8px;border-right:2px solid var(--border);padding-right:16px;">â Proposal</a>
+  <a href="deliverable-1-data-inventory.html" class="ready">1 Data Inventory</a>
+  <a href="deliverable-2-data-quality.html" class="ready">2 Quality Assessment</a>
+  <a href="deliverable-3-error-log.html" class="active">3 Error Log</a>
+  <a href="deliverable-4-gap-analysis.html" class="ready">4 Gap Analysis</a>
+  <a href="deliverable-5-data-ask.html" class="ready">5 Data Ask</a>
+  <a href="index.html" class="ready">Next Steps</a>
+</nav>
+
+<h1>Deliverable 3: <span>Error Log &amp; Proposed Fixes</span></h1>
+<p class="subtitle">Northwood Capital Partners — Climate Data Collection &amp; Gap Assessment</p>
+
+<div class="meta-bar">
+  <div class="meta-item"><span class="meta-label">Prepared by</span><span class="meta-value">Kith Consulting</span></div>
+  <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">March 26, 2026</span></div>
+  <div class="meta-item"><span class="meta-label">Errors Documented</span><span class="meta-value">18</span></div>
+  <div class="meta-item"><span class="meta-label">Sources Cross-Referenced</span><span class="meta-value">Carbon CSV (139 rows) vs. 10 climate questionnaires</span></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-card"><div class="num" style="color:var(--red);">2</div><div class="label">Critical</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--orange);">4</div><div class="label">High</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--yellow);">8</div><div class="label">Medium</div></div>
+  <div class="summary-card"><div class="num" style="color:#7ba5d0;">4</div><div class="label">Low</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--green);">7</div><div class="label">Fix Internally</div></div>
+  <div class="summary-card"><div class="num" style="color:var(--yellow);">11</div><div class="label">Need Client Data</div></div>
+</div>
+
+<h2><span class="tnum">Severity</span> Definitions</h2>
+<table style="max-width:800px;">
+<thead><tr><th>Severity</th><th>Definition</th><th>Action Required</th></tr></thead>
+<tbody>
+<tr><td><span class="sev sev-critical">Critical</span></td><td class="desc">Error would produce materially incorrect emissions if data is used as-is. Blocks calculation.</td><td class="desc">Must fix before any emissions calculation. Cannot proceed with caveats.</td></tr>
+<tr><td><span class="sev sev-high">High</span></td><td class="desc">Error materially affects accuracy at the facility level. Could distort portco-level results or misallocate between Scope 1 and Scope 2.</td><td class="desc">Must resolve before finalizing baseline. May require portco confirmation.</td></tr>
+<tr><td><span class="sev sev-medium">Medium</span></td><td class="desc">Error affects completeness or introduces uncertainty, but calculation can proceed with documented caveats.</td><td class="desc">Resolve during data request cycle. Flag in baseline with quality note.</td></tr>
+<tr><td><span class="sev sev-low">Low</span></td><td class="desc">Documentation or temporal issue. Does not materially affect the emissions result.</td><td class="desc">Note in methodology documentation. No urgent action.</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- CRITICAL ERRORS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Critical</span> Errors — Block Calculation</h2>
+
+<div class="error-card critical">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-01: NovaCare RehabWorks Unit Swap — kWh Entered as Therms</div>
+      <div class="error-portco">NovaCare Health Partners | NC-026 (Marietta, GA) &amp; NC-027 (Augusta, GA)</div>
+    </div>
+    <span class="sev sev-critical">Critical</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Two RehabWorks acquisition clinics report <strong>electricity = 0 kWh</strong> and <strong>natural gas = 82,000 / 74,000 therms</strong>. The median NovaCare clinic uses ~5,800 therms of gas. These values are 12&ndash;14x the median.</p>
+      <p>The notes field confirms: <em>"RehabWorks acquisition — data migrated from prior owner format."</em></p>
+      <p>During data migration from the prior owner's format, electricity consumption in kWh was entered into the natural_gas_therms column. The values (82,000 and 74,000) are consistent with mid-size clinic electricity consumption.</p>
+      <h4>Impact If Not Fixed</h4>
+      <p>Using 82,000 + 74,000 = 156,000 therms as natural gas would add <strong>~829 mt CO2e to NovaCare's Scope 1 emissions</strong> (at 0.00531 mt/therm). NovaCare's actual total Scope 1 from gas is likely ~900 mt. This error alone would nearly double the reported Scope 1 — a 100% overstatement.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">
+          <table class="correction-table">
+          <thead><tr><th>Facility</th><th>Field</th><th>Current</th><th>Corrected</th></tr></thead>
+          <tbody>
+          <tr><td>NC-026</td><td>electricity_kwh</td><td class="val-wrong">0</td><td class="val-right">82,000</td></tr>
+          <tr><td>NC-026</td><td>natural_gas_therms</td><td class="val-wrong">82,000</td><td class="val-right">~3,800 (estimate)</td></tr>
+          <tr><td>NC-027</td><td>electricity_kwh</td><td class="val-wrong">0</td><td class="val-right">74,000</td></tr>
+          <tr><td>NC-027</td><td>natural_gas_therms</td><td class="val-wrong">74,000</td><td class="val-right">~3,400 (estimate)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </div>
+      <h4>Rationale</h4>
+      <p>Move values from therms to kWh column. For gas, apply the NovaCare Georgia clinic median (~3,600 therms, based on NC-024 Atlanta, NC-025 Savannah) as a proxy estimate. Flag as Grade C data.</p>
+      <h4>Validation Required</h4>
+      <p><span class="warn">Request actual utility bills from RehabWorks-origin facilities</span> to confirm corrected values. Contact: Michael Park, CFO.</p>
+    </div>
+  </div>
+</div>
+
+<div class="error-card critical">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-02: CSV Formatting Error — Extra Comma in 6 Rows</div>
+      <div class="error-portco">Harvest Ridge Foods (HRF-002, 003, 004) &amp; Ridgeline Property Services (RPS-001, 002, 003)</div>
+    </div>
+    <span class="sev sev-critical">Critical</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Six rows in the submitted CSV have <strong>19 columns instead of 18</strong> (extra trailing comma). This causes all columns after the extra comma to shift right by one position when parsed.</p>
+      <p>Affected fields:</p>
+      <ul>
+        <li><strong>data_source</strong> parses as blank (actual value shifted to notes column)</li>
+        <li><strong>Ridgeline fleet_gasoline_gallons</strong> shifts into the data_source column — fleet data is lost</li>
+        <li><strong>Harvest Ridge data_source</strong> ("utility_bill") lands in the notes column</li>
+      </ul>
+      <h4>Impact If Not Fixed</h4>
+      <p>Any automated CSV parser will misattribute data source grades for these 6 facilities (appearing as "no source" instead of "utility_bill"). Ridgeline fleet gasoline values (4,200 + 2,800 + 1,200 = 8,200 gal) are silently dropped from Scope 1 calculation.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Remove the extra comma from each of the 6 affected rows. Validate column alignment after fix by checking that data_source contains a valid enum value (utility_bill, accounting_export, landlord_data, fleet_log, estimate, N/A) for every row.</div>
+      </div>
+      <h4>Rationale</h4>
+      <p>This is a data entry / export artifact. The actual values are present but misaligned. Fix is mechanical — no judgment required.</p>
+      <h4>Validation Required</h4>
+      <p><span class="ok">Can fix internally.</span> Run column-count validation on full CSV after correction. Confirm all 139 rows have exactly 18 columns.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HIGH ERRORS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">High</span> Errors — Materially Affect Accuracy</h2>
+
+<div class="error-card high">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-03: Sterling Akron/Elyria Energy Allocation Swap</div>
+      <div class="error-portco">Sterling Precision Manufacturing | SPM-001 (Akron) &amp; SPM-002 (Elyria)</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>The questionnaire and CSV report the <strong>same portfolio totals</strong> but <strong>different facility-level allocations</strong> between Akron and Elyria:</p>
+      <table class="correction-table" style="margin:8px 0;">
+      <thead><tr><th>Metric</th><th>Facility</th><th>Questionnaire</th><th>CSV</th><th>Delta</th></tr></thead>
+      <tbody>
+      <tr><td>Electricity</td><td>Akron</td><td>~4,850,000 kWh</td><td>4,185,000 kWh</td><td><span class="flag">-14%</span></td></tr>
+      <tr><td>Electricity</td><td>Elyria</td><td>~2,100,000 kWh</td><td>2,815,000 kWh</td><td><span class="flag">+34%</span></td></tr>
+      <tr><td>Gas</td><td>Akron</td><td>~235,000 therms</td><td>178,500 therms</td><td><span class="flag">-24%</span></td></tr>
+      <tr><td>Gas</td><td>Elyria</td><td>~72,000 therms</td><td>121,000 therms</td><td><span class="flag">+68%</span></td></tr>
+      <tr style="border-top:2px solid var(--accent)"><td>Electricity</td><td><strong>Total</strong></td><td>7,345,000</td><td>7,345,000</td><td><span class="ok">Match</span></td></tr>
+      <tr><td>Gas</td><td><strong>Total</strong></td><td>324,300</td><td>324,300</td><td><span class="ok">Match</span></td></tr>
+      </tbody>
+      </table>
+      <h4>Impact If Not Fixed</h4>
+      <p>Akron and Elyria are in <strong>different Ohio utility territories</strong> (Ohio Edison vs. FirstEnergy) and may fall in different EPA eGRID subregions. Incorrect facility-level allocation would produce incorrect Scope 2 emissions even though the total energy is correct. The magnitude of the error could be 5&ndash;15% on Sterling's Scope 2, depending on the subregion emission factor difference.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text"><strong>Trust the CSV values.</strong> The CSV data_source for both facilities is "utility_bill" — these numbers came from actual utility invoices. The questionnaire was submitted by the COO from memory/estimates (submitted Dec 12, 2025 based on YTD through November). Utility bill data is Grade A; COO memory is Grade C.</div>
+      </div>
+      <h4>Validation Required</h4>
+      <p><span class="warn">Confirm with Derek Williams (COO)</span> that the CSV values reflect the actual utility bills. Request copies of December statements to validate full-year figures (the CSV may be 11-month annualized).</p>
+    </div>
+  </div>
+</div>
+
+<div class="error-card high">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-04: Sterling R-410A Refrigerant Discrepancy</div>
+      <div class="error-portco">Sterling Precision Manufacturing | SPM-001, 002, 003</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <table class="correction-table" style="margin:8px 0;">
+      <thead><tr><th>Facility</th><th>Questionnaire R-410A</th><th>CSV R-410A</th></tr></thead>
+      <tbody>
+      <tr><td>Akron (SPM-001)</td><td>~15 lbs</td><td><span class="val-wrong">blank</span></td></tr>
+      <tr><td>Elyria (SPM-002)</td><td>~20 lbs</td><td>15 lbs</td></tr>
+      <tr><td>Canton (SPM-003)</td><td>~10 lbs</td><td><span class="val-wrong">blank</span></td></tr>
+      </tbody>
+      </table>
+      <p>CSV only captures refrigerant at one facility (Elyria, 15 lbs). Questionnaire lists all three. The Elyria quantity also differs (20 vs 15 lbs).</p>
+      <h4>Impact If Not Fixed</h4>
+      <p>R-410A has a GWP of 2,088. Missing 25 lbs (Akron 15 + Canton 10) = ~0.5 lbs leaked annually at a typical 2% leak rate = ~0.5 mt CO2e. Impact is small for R-410A. The R-22 at Akron (50 lbs, GWP 1,810) is the material refrigerant issue and is correctly captured in both sources.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Use the questionnaire values (15, 20, 10 lbs) as the installed charge. The CSV likely only recorded systems with recharges or service events, not total installed charge. For emissions, apply a 2% annual leak rate to the installed charge unless recharge records indicate otherwise.</div>
+      </div>
+      <h4>Validation Required</h4>
+      <p><span class="warn">Request HVAC maintenance/service records</span> for all 3 facilities to determine actual recharge quantities in 2025. Questionnaire notes the R-22 system had ~8 lbs recharged in Aug 2024 — similar records for R-410A would improve accuracy.</p>
+    </div>
+  </div>
+</div>
+
+<div class="error-card high">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-05: Patriot Fleet Gasoline Anomaly — 76,700 gal / 8 Vehicles</div>
+      <div class="error-portco">Patriot Staffing Solutions | All 26 facilities (fleet_gasoline column)</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>The CSV reports <strong>76,700 gallons of fleet gasoline</strong> distributed across 26 facilities (2,000&ndash;6,000 gal each). The questionnaire attributes this to <strong>8 branch manager vehicles</strong>.</p>
+      <p>76,700 gal &divide; 8 vehicles = <strong>~9,600 gal/vehicle/year</strong>. A typical sedan driven 15,000 miles/year at 25 mpg consumes ~600 gallons. 9,600 gal/vehicle is <strong>16x normal</strong>.</p>
+      <h4>Impact If Not Fixed</h4>
+      <p>If the 76,700 gal is correct, Patriot's fleet Scope 1 emissions would be ~680 mt CO2e — a significant portion of their total footprint. If it's overstated by 10x, we'd overreport by ~600 mt.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Three hypotheses to investigate</div>
+        <div class="fix-text">
+          <ol style="padding-left:16px;font-size:12px;">
+            <li><strong>Fleet is larger than 8 vehicles.</strong> The questionnaire says "8 branch manager vehicles" but the CSV allocates fuel to 26 facilities. Patriot may have pool/shared vehicles at each branch not classified as a "fleet."</li>
+            <li><strong>Values are monthly, not annual.</strong> 76,700 &divide; 12 = ~6,400 gal/yr, or ~800 gal/vehicle — this would be plausible.</li>
+            <li><strong>Shuttle bus fuel is included.</strong> Questionnaire mentions shuttle buses at 3 locations but says fuel data is "unavailable." It may have been included in the fleet gasoline line.</li>
+          </ol>
+        </div>
+      </div>
+      <h4>Validation Required</h4>
+      <p><span class="flag">Request fuel card statements</span> from Scott Henderson (VP of Risk). Need: total gallons purchased in 2025, vehicle count, vehicle type breakdown. This error cannot be resolved from the data in the environment.</p>
+    </div>
+  </div>
+</div>
+
+<div class="error-card high">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-06: Meridian Fleet Contradiction</div>
+      <div class="error-portco">Meridian Business Solutions | MBS-001, 003, 008, 013, 015</div>
+    </div>
+    <span class="sev sev-high">High</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>The questionnaire explicitly states: <em>"Meridian does not operate a vehicle fleet."</em></p>
+      <p>The CSV contains fleet_gasoline_gallons at 5 facilities:</p>
+      <table class="correction-table" style="margin:8px 0;">
+      <thead><tr><th>Facility</th><th>City</th><th>Fleet Gasoline (gal)</th></tr></thead>
+      <tbody>
+      <tr><td>MBS-001</td><td>Chicago HQ</td><td>850</td></tr>
+      <tr><td>MBS-003</td><td>Detroit</td><td>600</td></tr>
+      <tr><td>MBS-008</td><td>Atlanta</td><td>500</td></tr>
+      <tr><td>MBS-013</td><td>Jacksonville DC</td><td>750</td></tr>
+      <tr><td>MBS-015</td><td>Dallas</td><td>500</td></tr>
+      <tr><td colspan="2"><strong>Total</strong></td><td><strong>3,200</strong></td></tr>
+      </tbody>
+      </table>
+      <h4>Impact If Not Fixed</h4>
+      <p>3,200 gal = ~28 mt CO2e. Small in absolute terms, but it's either Scope 1 (company vehicles) or excluded (personal vehicles reimbursed = Scope 3 Cat 7). The classification matters for boundary accuracy.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">These are likely <strong>management or sales vehicles</strong> that the CFO does not classify as a "fleet" because they are individually assigned, not pooled. The fuel volumes (500&ndash;850 gal/yr = ~12,000&ndash;20,000 miles at 25 mpg) are consistent with a management vehicle driven for regional travel.</div>
+      </div>
+      <h4>Validation Required</h4>
+      <p><span class="warn">Clarify with Patricia Wells (CFO):</span> Are these company-owned or leased vehicles? If company-owned/leased = Scope 1. If personal vehicles with mileage reimbursement = Scope 3 Cat 7. Either way, the 3,200 gal belongs in the inventory — the question is which scope.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MEDIUM ERRORS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Medium</span> Errors — Affect Completeness</h2>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-07: Keystone — 6 Clinics Use Formulaic Estimates</div>
+      <div class="error-portco">Keystone Behavioral Health | KBH-004, 007, 009, 012, 014, 016</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Six clinics report <strong>exactly 33,000 kWh</strong> each with data_source = "estimate" and notes: <em>"Estimated: 2,200 sq ft x 15 kWh/sq ft — no utility data from landlord."</em></p>
+      <p>These are <strong>formulaic placeholders</strong>, not measured data. Together they represent 198,000 kWh or ~15% of Keystone's reported electricity. All 6 are in different states and climates, making a single intensity factor unreliable.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Short-term</div>
+        <div class="fix-text">Accept the estimates for baseline calculation with Grade C flag. Apply climate-adjusted intensity factors from comparable Keystone clinics in similar climate zones rather than a flat 15 kWh/sq ft.</div>
+      </div>
+      <div class="fix-box" style="margin-top:8px;">
+        <div class="fix-label">Medium-term</div>
+        <div class="fix-text"><span class="warn">Request landlord utility data or account access</span> for all 6 locations. These are leased spaces — landlords have the data. Coordinate as part of upcoming lease renewals where possible.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-08: Keystone Hagerstown — Zero Data (New Clinic)</div>
+      <div class="error-portco">Keystone Behavioral Health | KBH-022 (Hagerstown, MD)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Opened November 2025. Reports 0/0 for electricity and gas, data_source = "N/A". Notes: <em>"Opened November 2025 — insufficient data for annual reporting."</em></p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Request Nov&ndash;Dec 2025 utility data (2 months). Annualize by multiplying by 6 (12/2) with a note that the annualization is from a short operating period. Alternatively, apply sq-ft proxy from comparable Keystone clinics as a Grade C estimate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-09: Keystone Trenton — Partial Year (7 Months)</div>
+      <div class="error-portco">Keystone Behavioral Health | KBH-021 (Trenton, NJ)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Opened June 2025 — reports 52,000 kWh and 5,000 therms for 7 months. Not annualized. Notes: <em>"Opened June 2025 — 7 months of data."</em></p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Annualize: electricity = 52,000 &times; 12/7 = <span class="val-right">~89,100 kWh</span>. Gas = 5,000 &times; 12/7 = <span class="val-right">~8,600 therms</span>. Flag with note: "Annualized from 7-month operating period (Jun&ndash;Dec 2025). Heating-season gas may be underrepresented." Better: request Jan&ndash;May 2026 data to construct a full 12-month picture.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-10: Patriot — Two Facilities with Zero Utility Data</div>
+      <div class="error-portco">Patriot Staffing Solutions | PSS-009 (Evansville, IN) &amp; PSS-014 (Rockford, IL)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Both report 0/0 for electricity and gas. Notes: <em>"Utility costs included in lease — no separate data available from landlord."</em> Both still report fleet gasoline (2,500 gal each), confirming they are operational.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Apply Patriot branch median intensity as a proxy. Median branch: ~48,000 kWh electricity, ~3,400 therms gas. Flag as Grade C. <span class="warn">Request landlord utility breakout</span> or lease amendment requiring separate utility reporting.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-11: Patriot Louisville — Closed Branch, Full-Year Estimate</div>
+      <div class="error-portco">Patriot Staffing Solutions | PSS-006 (Louisville, KY)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Branch closed August 2025 (8 months of operation) but the landlord provided a full-year estimate: 46,000 kWh, 3,800 therms.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Prorate to 8 months: electricity = 46,000 &times; 8/12 = <span class="val-right">~30,700 kWh</span>. Gas = 3,800 &times; 8/12 = <span class="val-right">~2,500 therms</span>. Fleet gasoline: prorate similarly (3,000 &times; 8/12 = <span class="val-right">~2,000 gal</span>). Note: facility should be excluded from forward-looking baseline.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-12: Meridian Natural Gas Total Discrepancy</div>
+      <div class="error-portco">Meridian Business Solutions | Portfolio-level</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Questionnaire reports total gas of <strong>~142,300 therms</strong>. CSV sums to <strong>~129,800 therms</strong>. Delta: 12,500 therms (9.6%).</p>
+      <p>Likely cause: shared-building meters at New York (MBS-005) and Boston (MBS-006) where Meridian's allocation is estimated. The questionnaire may use a different allocation percentage than the CSV.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Use CSV values (from utility bills / accounting exports = Grade A/B). The questionnaire total was likely a manual sum of rounded figures. <span class="warn">Request documentation of the allocation methodology</span> for the New York and Boston shared-meter facilities to validate the CSV figures.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-13: Ridgeline Las Vegas Office Missing</div>
+      <div class="error-portco">Ridgeline Property Services | Las Vegas, NV (not in CSV)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Questionnaire reports 7 offices (including Las Vegas, opened Jan 2025). The CSV and blank template only contain 6 facilities. Las Vegas is entirely missing from the facility database.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Correction</div>
+        <div class="fix-text">Add row RPS-007 for Las Vegas. <span class="warn">Request utility data from Christine Albright (CFO).</span> In the interim, estimate using Phoenix office (RPS-002) as the closest climate proxy: ~95,000 kWh electricity, 0 gas (all-electric cooling), ~2,800 gal fleet gasoline. Flag as Grade C.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card medium">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-14: NovaCare Baltimore Electricity Outlier</div>
+      <div class="error-portco">NovaCare Health Partners | NC-010 (Baltimore, MD)</div>
+    </div>
+    <span class="sev sev-medium">Medium</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>NC-010 reports 312,000 kWh — <strong>3.5x the NovaCare clinic median</strong> (~88,000 kWh). Next highest clinic is NC-001 (Philadelphia HQ) at 248,000 kWh, which is expected given it includes HQ admin offices.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Investigation</div>
+        <div class="fix-text">This may be correct if Baltimore is a larger facility (e.g., multiple floors, more treatment rooms, extended hours). <span class="warn">Confirm facility size and function with Michael Park (CFO).</span> If it is a standard clinic, the value may include common-area energy from a shared meter. If confirmed correct, no correction needed — just document the outlier rationale.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LOW ERRORS -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Low</span> Errors — Documentation Issues</h2>
+
+<div class="error-card low">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-15: Sterling Data is 11-Month Annualization</div>
+      <div class="error-portco">Sterling Precision Manufacturing | All facilities</div>
+    </div>
+    <span class="sev sev-low">Low</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Questionnaire submitted Dec 12, 2025 with note: <em>"Reporting Period: Calendar Year 2025 (estimated based on YTD through November, annualized)."</em> Values are 11/12 extrapolations, not full-year actuals.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Action</div>
+        <div class="fix-text">Flag in methodology: "Sterling 2025 data annualized from Jan&ndash;Nov." <span class="ok">Request December utility bills</span> to complete the full year. Variance between annualized and actual is likely &lt;3% — not material, but proper documentation requires the note.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card low">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-16: Harvest Ridge Data is 9-Month Annualization</div>
+      <div class="error-portco">Harvest Ridge Foods | All facilities</div>
+    </div>
+    <span class="sev sev-low">Low</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Harvest Ridge closed in April 2025. All data is April&ndash;December 2025 extrapolated to 12 months. Seasonal variation in food production (summer peak, Q4 holiday peak) may not be fully captured in a 9-month sample.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Action</div>
+        <div class="fix-text">Flag in methodology: "Harvest Ridge 2025 data annualized from 9-month post-close period (Apr&ndash;Dec)." Request Q1 2026 utility bills (Jan&ndash;Mar) to construct a full 12-month rolling total. The 9-month period does capture both summer and Q4 peaks, so the annualization is reasonable.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card low">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-17: Keystone Questionnaire — Different Section Structure</div>
+      <div class="error-portco">Keystone Behavioral Health</div>
+    </div>
+    <span class="sev sev-low">Low</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>Keystone's questionnaire uses 8 sections with different headings than the standard 10-section format used by other portcos. Submitted by the COO (Jennifer Martinez) without CFO review. Note at top: <em>"Our CFO, William Park, was unable to participate..."</em></p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Action</div>
+        <div class="fix-text">No data correction needed — the content covers the same ground in a different structure. <span class="ok">Request CFO review</span> of financial and energy cost figures when billing platform rollout stabilizes. The COO's submission is transparent about its limitations — this is a process issue, not a data error.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="error-card low">
+  <div class="error-header">
+    <div>
+      <div class="error-title">E-18: Missing carbon_footprint.py Tool</div>
+      <div class="error-portco">System / Environment</div>
+    </div>
+    <span class="sev sev-low">Low</span>
+  </div>
+  <div class="error-body">
+    <div class="error-section">
+      <h4>What's Wrong</h4>
+      <p>The Climate Data Collection Protocol references <code>tools/carbon_footprint.py</code> as the location of embedded EPA emission factors and eGRID data. This file does not exist in the environment. Only <code>tools/rc_utils.py</code> is present.</p>
+    </div>
+    <div class="error-section">
+      <h4>Proposed Fix</h4>
+      <div class="fix-box">
+        <div class="fix-label">Action</div>
+        <div class="fix-text"><span class="ok">Build the emission factor library as part of Step 2</span> (Climate Data System Build). Source EPA Emission Factors (2023) and EPA eGRID (2022) data directly. This is an anticipated deliverable, not an error in the client data — the tool simply hasn't been built yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SUMMARY TABLE -->
+<!-- ============================================================ -->
+<h2><span class="tnum">Summary</span> Error Log</h2>
+
+<table>
+<thead><tr><th>#</th><th>Severity</th><th>Portco</th><th>Error</th><th>Fix Type</th><th>Action Owner</th><th>Blocks Calc?</th></tr></thead>
+<tbody>
+<tr><td>E-01</td><td><span class="sev sev-critical">Critical</span></td><td>NovaCare</td><td>kWh entered as therms (NC-026, NC-027)</td><td>Correct + request bills</td><td>Kith + Michael Park (CFO)</td><td><span class="flag">Yes</span></td></tr>
+<tr><td>E-02</td><td><span class="sev sev-critical">Critical</span></td><td>HRF / RPS</td><td>CSV extra comma — 6 rows misaligned</td><td>Fix internally</td><td>Kith</td><td><span class="flag">Yes</span></td></tr>
+<tr><td>E-03</td><td><span class="sev sev-high">High</span></td><td>Sterling</td><td>Akron/Elyria allocation swap</td><td>Trust CSV + confirm</td><td>Kith + Derek Williams (COO)</td><td><span class="warn">Scope 2</span></td></tr>
+<tr><td>E-04</td><td><span class="sev sev-high">High</span></td><td>Sterling</td><td>R-410A charge discrepancy</td><td>Use questionnaire + request records</td><td>Derek Williams (COO)</td><td>No</td></tr>
+<tr><td>E-05</td><td><span class="sev sev-high">High</span></td><td>Patriot</td><td>76,700 gal / 8 vehicles anomaly</td><td>Request fuel cards</td><td>Scott Henderson (VP Risk)</td><td><span class="warn">Scope 1</span></td></tr>
+<tr><td>E-06</td><td><span class="sev sev-high">High</span></td><td>Meridian</td><td>Fleet contradiction (no fleet vs 3,200 gal)</td><td>Clarify scope boundary</td><td>Patricia Wells (CFO)</td><td><span class="warn">Boundary</span></td></tr>
+<tr><td>E-07</td><td><span class="sev sev-medium">Medium</span></td><td>Keystone</td><td>6 clinics use formulaic 33K kWh estimate</td><td>Accept w/ flag + request actuals</td><td>Jennifer Martinez (COO)</td><td>No</td></tr>
+<tr><td>E-08</td><td><span class="sev sev-medium">Medium</span></td><td>Keystone</td><td>Hagerstown zero data (new clinic)</td><td>Request 2-month data or estimate</td><td>Jennifer Martinez (COO)</td><td>No</td></tr>
+<tr><td>E-09</td><td><span class="sev sev-medium">Medium</span></td><td>Keystone</td><td>Trenton 7-month partial year</td><td>Annualize (12/7)</td><td>Kith</td><td>No</td></tr>
+<tr><td>E-10</td><td><span class="sev sev-medium">Medium</span></td><td>Patriot</td><td>2 facilities zero utilities (lease-bundled)</td><td>Apply proxy + request landlord data</td><td>Scott Henderson (VP Risk)</td><td>No</td></tr>
+<tr><td>E-11</td><td><span class="sev sev-medium">Medium</span></td><td>Patriot</td><td>Louisville closed branch — full-year estimate</td><td>Prorate to 8 months</td><td>Kith</td><td>No</td></tr>
+<tr><td>E-12</td><td><span class="sev sev-medium">Medium</span></td><td>Meridian</td><td>Gas total discrepancy (142K vs 130K therms)</td><td>Use CSV + request allocation docs</td><td>Patricia Wells (CFO)</td><td>No</td></tr>
+<tr><td>E-13</td><td><span class="sev sev-medium">Medium</span></td><td>Ridgeline</td><td>Las Vegas office missing from database</td><td>Add row + request data</td><td>Christine Albright (CFO)</td><td>No</td></tr>
+<tr><td>E-14</td><td><span class="sev sev-medium">Medium</span></td><td>NovaCare</td><td>Baltimore 312K kWh outlier (3.5x median)</td><td>Confirm facility size</td><td>Michael Park (CFO)</td><td>No</td></tr>
+<tr><td>E-15</td><td><span class="sev sev-low">Low</span></td><td>Sterling</td><td>11-month annualization</td><td>Flag + request Dec bills</td><td>Derek Williams (COO)</td><td>No</td></tr>
+<tr><td>E-16</td><td><span class="sev sev-low">Low</span></td><td>Harvest Ridge</td><td>9-month annualization</td><td>Flag + request Q1 2026 bills</td><td>Thomas Nguyen (CFO)</td><td>No</td></tr>
+<tr><td>E-17</td><td><span class="sev sev-low">Low</span></td><td>Keystone</td><td>Non-standard questionnaire format, no CFO review</td><td>Request CFO review when available</td><td>William Park (CFO)</td><td>No</td></tr>
+<tr><td>E-18</td><td><span class="sev sev-low">Low</span></td><td>System</td><td>carbon_footprint.py referenced but missing</td><td>Build in Step 2</td><td>Kith</td><td>No</td></tr>
+</tbody>
+</table>
+
+<!-- RESOLUTION PRIORITY -->
+<h2><span class="tnum">Resolution</span> Priority Order</h2>
+<p class="section-note">Recommended sequence for addressing errors before emissions calculation begins.</p>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:16px 0;">
+<h3 style="color:var(--red);margin-bottom:12px;font-size:14px;">Phase 1: Fix Before Any Calculation (Day 1)</h3>
+<ol style="font-size:13px;color:var(--text-muted);padding-left:20px;">
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-02:</strong> Fix CSV formatting (6 rows). Mechanical fix, no judgment needed. <span class="ok">Kith handles internally.</span></li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-01:</strong> Correct NovaCare unit swap (move kWh from therms column). Apply Georgia clinic median for gas. <span class="ok">Kith handles internally</span>, sends corrected values to Michael Park for confirmation.</li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-09:</strong> Annualize Keystone Trenton (7-month to 12-month). <span class="ok">Kith handles internally.</span></li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-11:</strong> Prorate Patriot Louisville (full year to 8 months). <span class="ok">Kith handles internally.</span></li>
+</ol>
+
+<h3 style="color:var(--orange);margin-bottom:12px;margin-top:20px;font-size:14px;">Phase 2: Resolve Before Finalizing Baseline (Week 1)</h3>
+<ol start="5" style="font-size:13px;color:var(--text-muted);padding-left:20px;">
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-03:</strong> Confirm Sterling facility allocation with Derek Williams. Email with corrected CSV values, ask for confirmation. <span class="warn">Portco action.</span></li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-06:</strong> Clarify Meridian fleet boundary with Patricia Wells. One question: "Are these company-owned vehicles?" <span class="warn">Portco action.</span></li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-05:</strong> Request Patriot fuel card data from Scott Henderson. <span class="warn">Portco action.</span></li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-12:</strong> Request Meridian shared-meter allocation documentation. <span class="warn">Portco action.</span></li>
+</ol>
+
+<h3 style="color:var(--yellow);margin-bottom:12px;margin-top:20px;font-size:14px;">Phase 3: Improve During Data Request Cycle (Weeks 1-2)</h3>
+<ol start="9" style="font-size:13px;color:var(--text-muted);padding-left:20px;">
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-07, E-08:</strong> Request actual utility data for Keystone's 6 estimated + 1 zero-data clinics. Bundle into the Deliverable 5 data ask.</li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-10:</strong> Request Patriot landlord utility breakouts for Evansville and Rockford.</li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-13:</strong> Request Ridgeline Las Vegas office data.</li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-14:</strong> Confirm NovaCare Baltimore facility size.</li>
+<li style="margin-bottom:6px;"><strong style="color:var(--text);">E-04, E-15, E-16:</strong> Request HVAC records (Sterling), December bills (Sterling), Q1 2026 bills (Harvest Ridge).</li>
+</ol>
+</div>
+
+<div class="footer">
+  Kith Consulting &bull; Northwood Capital Partners Engagement &bull; Step 1, Deliverable 3 &bull; March 26, 2026
+</div>
+
+</body>
+</html>

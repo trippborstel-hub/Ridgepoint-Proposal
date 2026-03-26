@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deliverable 2: Data Quality Assessment — Northwood Capital</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232735;
+    --border: #2e3345;
+    --text: #e2e4ea;
+    --text-muted: #8b8fa3;
+    --accent: #5bb8a4;
+    --accent-dim: #3d7a6d;
+    --high: #e85d5d;
+    --medium: #e8a84c;
+    --low: #6b9bd2;
+    --none: #555a6e;
+    --header-bg: #15171f;
+    --green: #4caf50;
+    --yellow: #e8a84c;
+    --red: #e85d5d;
+    --orange: #e8724c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 32px 48px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; }
+  nav {
+    display: flex; gap: 4px; margin-bottom: 24px; padding: 8px;
+    background: var(--surface); border-radius: 8px; border: 1px solid var(--border);
+    font-size: 13px; font-weight: 600;
+  }
+  nav a {
+    padding: 8px 16px; border-radius: 6px; text-decoration: none;
+  }
+  nav a.active { background: var(--accent); color: var(--bg); }
+  nav a.ready { color: var(--text-muted); border: 1px solid var(--border); }
+  nav a.ready:hover { background: var(--surface2); color: var(--text); }
+  nav a.disabled { color: var(--none); border: 1px solid var(--border); pointer-events: none; }
+  .meta-bar {
+    display: flex; gap: 32px; margin-bottom: 36px; padding: 16px 20px;
+    background: var(--surface); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+  .meta-value { font-size: 15px; font-weight: 600; color: #fff; }
+  h2 {
+    font-size: 18px; font-weight: 600; color: #fff; margin: 40px 0 6px 0;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  h2 .tnum { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 24px 0 8px 0; }
+  .section-note { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; font-style: italic; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
+  thead th {
+    background: var(--header-bg); color: var(--accent); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 12px; text-align: left;
+    border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 10;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr.priority { background: rgba(91,184,164,0.06); }
+  tbody tr.priority:hover { background: rgba(91,184,164,0.12); }
+  td { padding: 8px 12px; vertical-align: top; }
+  .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; }
+  .desc { color: var(--text-muted); }
+  .desc strong { color: var(--text); font-weight: 600; }
+
+  /* Score badges */
+  .score {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px;
+    font-size: 16px; font-weight: 800; color: #fff;
+  }
+  .score-5 { background: #2d7a3a; }
+  .score-4 { background: #3d8a4a; }
+  .score-3 { background: #a08830; }
+  .score-2 { background: #c06030; }
+  .score-1 { background: #c03030; }
+  .score-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; text-align: center;
+  }
+  .score-label.lbl-5 { color: #4caf50; }
+  .score-label.lbl-4 { color: #66bb6a; }
+  .score-label.lbl-3 { color: var(--yellow); }
+  .score-label.lbl-2 { color: var(--orange); }
+  .score-label.lbl-1 { color: var(--red); }
+
+  /* Data source bars */
+  .source-bar {
+    display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 4px 0; width: 100%; min-width: 120px;
+  }
+  .bar-a { background: #4caf50; }
+  .bar-b { background: var(--yellow); }
+  .bar-c { background: var(--orange); }
+  .bar-na { background: var(--red); }
+
+  .source-legend {
+    display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); margin-top: 4px;
+  }
+  .source-legend span { display: flex; align-items: center; gap: 4px; }
+  .sdot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+  /* Portco cards */
+  .portco-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 16px;
+  }
+  .portco-card.priority-card { border-left: 3px solid var(--accent); }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .card-title { font-size: 16px; font-weight: 700; color: #fff; }
+  .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .card-scores { display: flex; gap: 12px; }
+  .card-score-item { display: flex; flex-direction: column; align-items: center; }
+  .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card-section h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--accent); margin-bottom: 6px; font-weight: 600;
+  }
+  .card-section p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .card-section ul { font-size: 13px; color: var(--text-muted); padding-left: 16px; margin-bottom: 6px; }
+  .card-section li { margin-bottom: 4px; }
+  .flag { color: var(--red); font-weight: 600; }
+  .warn { color: var(--yellow); font-weight: 600; }
+  .ok { color: var(--green); font-weight: 600; }
+
+  /* Summary grid */
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; margin: 20px 0 32px 0;
+  }
+  .summary-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .summary-card .num { font-size: 28px; font-weight: 700; color: #fff; }
+  .summary-card .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  .footer {
+    margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text-muted); text-align: center;
+  }
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .card-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="ready" style="margin-right:8px;border-right:2px solid var(--border);padding-right:16px;">â Proposal</a>
+  <a href="deliverable-1-data-inventory.html" class="ready">1 Data Inventory</a>
+  <a href="deliverable-2-data-quality.html" class="active">2 Quality Assessment</a>
+  <a href="deliverable-3-error-log.html" class="ready">3 Error Log</a>
+  <a href="deliverable-4-gap-analysis.html" class="ready">4 Gap Analysis</a>
+  <a href="deliverable-5-data-ask.html" class="ready">5 Data Ask</a>
+  <a href="index.html" class="ready">Next Steps</a>
+</nav>
+
+<h1>Deliverable 2: <span>Data Quality Assessment</span></h1>
+<p class="subtitle">Northwood Capital Partners — Climate Data Collection &amp; Gap Assessment</p>
+
+<div class="meta-bar">
+  <div class="meta-item"><span class="meta-label">Prepared by</span><span class="meta-value">Kith Consulting</span></div>
+  <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">March 26, 2026</span></div>
+  <div class="meta-item"><span class="meta-label">Sources Assessed</span><span class="meta-value">10 climate questionnaires + 1 carbon CSV (139 facility rows)</span></div>
+  <div class="meta-item"><span class="meta-label">Methodology</span><span class="meta-value">Northwood Climate Protocol A/B/C grading + cross-source validation</span></div>
+</div>
+
+<!-- SCOPE TABS -->
+<div style="display:flex;gap:4px;margin-bottom:28px;padding:6px;background:var(--surface);border-radius:8px;border:1px solid var(--border);">
+  <a href="#scope12" style="padding:10px 20px;border-radius:6px;background:var(--accent);color:var(--bg);text-decoration:none;font-size:14px;font-weight:700;">Scope 1 + 2 Assessment</a>
+  <a href="#scope3" style="padding:10px 20px;border-radius:6px;color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:600;border:1px solid var(--border);">Scope 3 Screening</a>
+</div>
+
+<div id="scope12"></div>
+
+<!-- SCORING KEY -->
+<h2><span class="tnum">Scoring</span> Methodology</h2>
+
+<p style="font-size:13px;color:var(--text);margin-bottom:12px;max-width:960px;">This assessment evaluates data readiness for GHG Protocol-aligned Scope 1+2 emissions calculation across Northwood's portfolio. Each portco is scored on the <strong>five GHG Protocol accounting and reporting principles</strong> (GHG Protocol Corporate Standard, Chapter 1), then given a composite overall score.</p>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;max-width:960px;">The assessment is based on cross-referencing two primary sources &mdash; the submitted carbon CSV (139 facility-level energy rows) and each portco's climate questionnaire (narrative responses) &mdash; against each other and against the standards defined in Northwood's Climate Data Collection Protocol (Q1 2026).</p>
+
+<h3 style="margin-top:20px;">The Five GHG Protocol Principles — Applied to Data Readiness</h3>
+<table style="max-width:960px;">
+<thead><tr><th style="width:130px;">Principle</th><th>GHG Protocol Definition</th><th>How We Assess It Here</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>Relevance</strong></td>
+  <td class="desc">The GHG inventory appropriately reflects the emissions of the company and serves the decision-making needs of users.</td>
+  <td class="desc">Does the data cover the correct organizational and operational boundary? Are all material emission sources within scope identified? Are there boundary ambiguities (e.g., leased vs. owned facilities, managed properties, employee commuting) that would change the emissions profile if resolved differently?</td>
+</tr>
+<tr>
+  <td><strong>Completeness</strong></td>
+  <td class="desc">Account for and report on all GHG emission sources and activities within the chosen inventory boundary.</td>
+  <td class="desc">Are all known facilities represented with data? Are all applicable energy types (electricity, gas, fuel, refrigerants, fleet) captured? Are there zero-value, blank, or partial-year entries? Does the submission cover 12 full months?</td>
+</tr>
+<tr>
+  <td><strong>Consistency</strong></td>
+  <td class="desc">Use consistent methodologies to allow for meaningful performance tracking of emissions over time.</td>
+  <td class="desc">Do the CSV and questionnaire agree on totals? Are facility-level allocations internally consistent? Are units, time periods, and boundary definitions applied uniformly across facilities? Are there contradictions between what the narrative says and what the data shows?</td>
+</tr>
+<tr>
+  <td><strong>Transparency</strong></td>
+  <td class="desc">Address all relevant issues in a factual and coherent manner, based on a clear audit trail.</td>
+  <td class="desc">Can each data point be traced to a documented source? Distribution of data source grades per Northwood's protocol: <strong>Grade A</strong> (utility bills), <strong>Grade B</strong> (accounting exports / fleet logs), <strong>Grade C</strong> (landlord data / proxy estimates). Are assumptions, estimation methods, and data limitations disclosed? Per Northwood protocol: &gt;80% A = Grade A portco; &gt;80% A+B = Grade B; &gt;20% C = Grade C.</td>
+</tr>
+<tr>
+  <td><strong>Accuracy</strong></td>
+  <td class="desc">Ensure quantification is systematically neither over nor under actual emissions, and that uncertainties are reduced as far as practicable.</td>
+  <td class="desc">Are there detectable errors — unit mismatches, data entry mistakes, outliers, or values that would produce materially incorrect emissions if used as-is? Would the data, if fed directly into an emissions calculation, produce a result that is defensible?</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="margin-top:24px;">Composite Overall Score</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;max-width:960px;">The overall score is a weighted judgment across all five principles. Accuracy issues that would corrupt an emissions calculation (e.g., unit swaps, data entry errors) are weighted most heavily because they produce misleading results. Completeness and transparency gaps are weighted next because they determine whether a baseline is defensible. Relevance and consistency issues are weighted lower when they represent scoping decisions rather than data errors &mdash; they need resolution but don't block calculation.</p>
+
+<h3 style="margin-top:20px;">Score Scale</h3>
+<table style="max-width:700px;">
+<thead><tr><th>Score</th><th>Label</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><span class="score score-5">5</span></td><td>Excellent</td><td class="desc">Principle fully satisfied. Data is calculation-ready with no remediation needed.</td></tr>
+<tr><td><span class="score score-4">4</span></td><td>Good</td><td class="desc">Principle largely satisfied. Minor gaps or discrepancies that do not block analysis.</td></tr>
+<tr><td><span class="score score-3">3</span></td><td>Adequate</td><td class="desc">Principle partially satisfied. Notable gaps or concerns. Results should carry a data quality caveat.</td></tr>
+<tr><td><span class="score score-2">2</span></td><td>Poor</td><td class="desc">Principle not adequately met. Remediation required before reliable calculation. Follow-up data request likely needed.</td></tr>
+<tr><td><span class="score score-1">1</span></td><td>Critical</td><td class="desc">Principle violated. Major errors or gaps that block analysis entirely or would produce misleading results.</td></tr>
+</tbody>
+</table>
+
+<h3 style="margin-top:20px;">Data Source Grading (Transparency Input)</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Per Northwood's Climate Data Collection Protocol (Q1 2026), every facility-level data point carries a quality grade based on its source. This grading directly informs the Transparency score:</p>
+<div style="margin:8px 0 8px 0;">
+  <div class="source-legend" style="margin-top:6px;">
+    <span><span class="sdot bar-a"></span> <strong style="color:var(--text);">Grade A</strong> — Utility bills (actual metered consumption from invoices)</span>
+    <span><span class="sdot bar-b"></span> <strong style="color:var(--text);">Grade B</strong> — Accounting exports / fleet logs (derived from financial or telematics records)</span>
+    <span><span class="sdot bar-c"></span> <strong style="color:var(--text);">Grade C</strong> — Landlord data / proxy estimates (lowest confidence; flagged in all downstream analysis)</span>
+    <span><span class="sdot bar-na"></span> <strong style="color:var(--text);">N/A</strong> — No data available</span>
+  </div>
+</div>
+
+<!-- PORTFOLIO SCORECARD -->
+<h2><span class="tnum">Portfolio</span> Scorecard Overview</h2>
+<p class="section-note">R = Relevance, C = Completeness, Co = Consistency, T = Transparency, A = Accuracy</p>
+<table>
+<thead><tr><th>Portco</th><th>Fund</th><th>Fac.</th><th style="text-align:center" title="Relevance">R</th><th style="text-align:center" title="Completeness">C</th><th style="text-align:center" title="Consistency">Co</th><th style="text-align:center" title="Transparency">T</th><th style="text-align:center" title="Accuracy">A</th><th style="text-align:center">Overall</th><th>Source Mix</th><th>Key Issue</th></tr></thead>
+<tbody>
+<tr class="priority">
+  <td><strong>Meridian ***</strong></td><td>I</td><td>16</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div><div class="source-legend"><span>75% A</span><span>25% B</span></div></td>
+  <td class="desc"><span class="warn">Fleet boundary unclear — questionnaire says none, CSV has 3,200 gal</span></td>
+</tr>
+<tr class="priority">
+  <td><strong>Sterling ***</strong></td><td>I</td><td>3</td>
+  <td style="text-align:center"><span class="score score-5">5</span></td>
+  <td style="text-align:center"><span class="score score-5">5</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-5">5</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div><div class="source-legend"><span>100% A</span></div></td>
+  <td class="desc"><span class="flag">Akron/Elyria allocation swapped between sources (totals match)</span></td>
+</tr>
+<tr class="priority">
+  <td><strong>Keystone ***</strong></td><td>II</td><td>22</td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:32%"></div><div class="bar-c" style="width:63%"></div><div class="bar-na" style="width:5%"></div></div><div class="source-legend"><span>32% A</span><span>63% C</span><span>5% N/A</span></div></td>
+  <td class="desc"><span class="flag">27% formulaic estimates, in-home therapy boundary question, no CFO review</span></td>
+</tr>
+<tr>
+  <td>NovaCare</td><td>I</td><td>30</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:63%"></div><div class="bar-c" style="width:37%"></div></div><div class="source-legend"><span>63% A</span><span>37% C</span></div></td>
+  <td class="desc"><span class="flag">RehabWorks unit swap — kWh entered as therms. Would corrupt Scope 1.</span></td>
+</tr>
+<tr>
+  <td>Trident</td><td>I</td><td>8</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:25%"></div><div class="bar-b" style="width:75%"></div></div><div class="source-legend"><span>25% A</span><span>75% B</span></div></td>
+  <td class="desc"><span class="ok">Most mature — already calculated ~595 mt CO2e, evaluating SBTs</span></td>
+</tr>
+<tr>
+  <td>Clearview</td><td>II</td><td>12</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div><div class="source-legend"><span>75% A</span><span>25% B</span></div></td>
+  <td class="desc"><span class="warn">Fleet dominant (~156K gal). EHS co-authored. Credibility gap.</span></td>
+</tr>
+<tr>
+  <td>Patriot</td><td>II</td><td>26</td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-1">1</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:4%"></div><div class="bar-c" style="width:92%"></div><div class="bar-b" style="width:4%"></div></div><div class="source-legend"><span>4% A</span><span>92% C</span><span>4% B</span></div></td>
+  <td class="desc"><span class="flag">96% landlord data. 2 zero facilities. 76K gal / 8 vehicles anomaly.</span></td>
+</tr>
+<tr>
+  <td>Pinnacle</td><td>II</td><td>10</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:10%"></div><div class="bar-b" style="width:80%"></div><div class="bar-b" style="width:10%"></div></div><div class="source-legend"><span>10% A</span><span>90% B</span></div></td>
+  <td class="desc"><span class="warn">Fleet dominant (~203K gal). $3.2M hurricane revenue deferral.</span></td>
+</tr>
+<tr>
+  <td>Harvest Ridge</td><td>II</td><td>5</td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div><div class="source-legend"><span>100% A</span></div></td>
+  <td class="desc"><span class="warn">CSV format error (3 rows). 9-month extrapolation. R-404A leak.</span></td>
+</tr>
+<tr>
+  <td>Ridgeline</td><td>II</td><td>6</td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:17%"></div><div class="bar-c" style="width:83%"></div></div><div class="source-legend"><span>17% A</span><span>83% C</span></div></td>
+  <td class="desc"><span class="flag">Las Vegas office missing. 5/6 offices estimated. Scope 3 managed portfolio question.</span></td>
+</tr>
+</tbody>
+</table>
+
+<!-- DETAILED PORTCO CARDS -->
+<h2><span class="tnum">Detailed</span> Portco Assessments</h2>
+
+<!-- MERIDIAN -->
+<div class="portco-card priority-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Meridian Business Solutions <span style="color:var(--accent);font-size:13px;">*** Priority</span></div>
+      <div class="card-subtitle">Fund I | Business Services | 16 offices | Exit prep | $225M revenue</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Completeness</h4>
+      <ul>
+        <li>All 16 facilities reported with electricity and gas data</li>
+        <li>4 warm-climate facilities report zero gas (plausible — all-electric cooling)</li>
+        <li>Submitted by CFO (Patricia Wells) — appropriate authority</li>
+        <li>Annual totals only — no monthly granularity</li>
+      </ul>
+      <h4>Consistency Issues</h4>
+      <ul>
+        <li><span class="flag">Questionnaire states "Meridian does not operate a vehicle fleet"</span> but CSV contains 3,200 gallons fleet gasoline across 5 facilities (Chicago 850, Detroit 600, Atlanta 500, Jacksonville 750, Dallas 500)</li>
+        <li><span class="warn">Gas total discrepancy:</span> Questionnaire reports ~142,300 therms; CSV sums to ~129,800 therms (9.6% variance)</li>
+        <li>Electricity totals are consistent between questionnaire (~2,681,500 kWh) and CSV (2,681,500 kWh)</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality</h4>
+      <ul>
+        <li><span class="ok">75% Grade A</span> (12 facilities from utility bills)</li>
+        <li>25% Grade B (4 facilities from accounting exports)</li>
+        <li>Boston (MBS-006) note: electricity estimated at 60% of building total — allocation method</li>
+        <li>New York (MBS-005) note: shared meter includes common areas</li>
+      </ul>
+      <h4>Assessment</h4>
+      <p><strong>Good data for an office-based company.</strong> The fleet discrepancy needs resolution — likely management/sales vehicles not classified as "fleet" by the CFO. Gas total variance is within tolerance for a first submission but should be reconciled. Data is sufficient for Scope 1+2 baseline. For exit positioning, monthly bills would strengthen the data room.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STERLING -->
+<div class="portco-card priority-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Sterling Precision Manufacturing <span style="color:var(--accent);font-size:13px;">*** Priority</span></div>
+      <div class="card-subtitle">Fund I | Industrial Technology | 3 facilities | Strong | $168M revenue</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Completeness</h4>
+      <ul>
+        <li>All 3 facilities reported with full energy, fuel, refrigerant, and fleet data</li>
+        <li>Waste streams described qualitatively (180 tons metal chips, 12K gal coolant, 3.5K gal finishing chemicals)</li>
+        <li>Efficiency opportunities identified with cost estimates ($510K capex, ~$190K/yr savings)</li>
+        <li>R-22 refrigerant issue documented with replacement cost ($180K)</li>
+        <li>Most detailed questionnaire in the portfolio — COO (Derek Williams) is operationally close to the data</li>
+      </ul>
+      <h4>Consistency Issues</h4>
+      <ul>
+        <li><span class="flag">Facility-level energy allocation differs significantly between questionnaire and CSV:</span></li>
+        <li>Akron electricity: questionnaire ~4,850,000 kWh vs CSV 4,185,000 kWh (<span class="flag">-14%</span>)</li>
+        <li>Elyria electricity: questionnaire ~2,100,000 kWh vs CSV 2,815,000 kWh (<span class="flag">+34%</span>)</li>
+        <li>Akron gas: questionnaire ~235,000 therms vs CSV 178,500 therms (<span class="flag">-24%</span>)</li>
+        <li>Elyria gas: questionnaire ~72,000 therms vs CSV 121,000 therms (<span class="flag">+68%</span>)</li>
+        <li><span class="ok">Portfolio totals match exactly</span> (electricity: 7,345,000 kWh; gas: 324,300 therms) — the allocation between Akron and Elyria is swapped/mixed</li>
+        <li><span class="warn">R-410A discrepancy:</span> Questionnaire lists R-410A at Akron (15 lbs), Elyria (20 lbs), Canton (10 lbs). CSV shows R-410A only at Elyria (15 lbs).</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality</h4>
+      <ul>
+        <li><span class="ok">100% Grade A</span> (all 3 facilities from utility bills)</li>
+        <li>COO-submitted — operationally authoritative but questionnaire was likely from memory/estimates while CSV was from actual billing data</li>
+        <li>Questionnaire submitted Dec 12, 2025 (earliest in portfolio) — 2025 figures are annualized from YTD through November</li>
+      </ul>
+      <h4>Assessment</h4>
+      <p><strong>Excellent underlying data quality, but the facility-level allocation error must be resolved before emissions calculation.</strong> The CSV (from utility bills) is likely correct; the questionnaire (from COO memory) contains the error. This matters because Akron and Elyria are in different utility territories with different eGRID emission factors for Scope 2. Monthly bills would enable demand charge analysis — the COO specifically flagged this as a pain point ($1.8M/yr energy, demand charges = ~30% of bill).</p>
+    </div>
+  </div>
+</div>
+
+<!-- KEYSTONE -->
+<div class="portco-card priority-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Keystone Behavioral Health <span style="color:var(--accent);font-size:13px;">*** Priority</span></div>
+      <div class="card-subtitle">Fund II | Healthcare Services | 22 clinics | 100-day | $138M revenue</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Completeness</h4>
+      <ul>
+        <li>22 of 22 clinics listed, but quality varies sharply</li>
+        <li><span class="flag">6 clinics (27%) use formulaic estimates</span> — all show exactly 33,000 kWh (2,200 sq ft x 15 kWh/sq ft)</li>
+        <li><span class="flag">KBH-022 (Hagerstown):</span> opened Nov 2025, reports 0/0 — effectively no data</li>
+        <li><span class="warn">KBH-021 (Trenton):</span> opened June 2025, only 7 months — not annualized</li>
+        <li><span class="flag">35% of therapy sessions are in-home</span> — therapist vehicle mileage is unquantified (potential Scope 3 Cat 7)</li>
+        <li>No HVAC equipment inventory across clinic portfolio</li>
+        <li>Submitted by COO (Jennifer Martinez) — <span class="warn">no CFO review</span> due to billing platform rollout</li>
+      </ul>
+      <h4>Consistency Issues</h4>
+      <ul>
+        <li><span class="warn">Electricity total:</span> questionnaire reports ~1,494,000 kWh; CSV sums to ~1,312,000 kWh (12% variance)</li>
+        <li>Gas totals are roughly consistent (~120,400 vs ~114,800 therms)</li>
+        <li>Questionnaire uses different section structure (8 sections vs standard 10) — reflects first-time respondent</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality</h4>
+      <ul>
+        <li><span class="flag">Only 32% Grade A</span> (7 facilities from utility bills)</li>
+        <li>36% Grade C (8 facilities from landlord data)</li>
+        <li>27% Grade C (6 facilities from sq-ft estimates)</li>
+        <li>5% N/A (1 facility with no data)</li>
+        <li>Per Northwood protocol: &gt;20% proxy data = <span class="flag">Grade C portco</span></li>
+      </ul>
+      <h4>Assessment</h4>
+      <p><strong>Weakest data quality in the portfolio, as expected for a 100-day company.</strong> The honest, transparent questionnaire is a positive — Jennifer Martinez flagged gaps herself. But we cannot calculate a reliable baseline with 27% formulaic estimates. Priority actions: (1) request actual utility data for the 6 estimated clinics, (2) request or estimate therapist mileage for Scope 3 screening, (3) get CFO to review financial/energy data when billing platform stabilizes. The weather disruption / patient regression narrative is the most compelling climate risk story in the portfolio.</p>
+    </div>
+  </div>
+</div>
+
+<!-- NOVACARE -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">NovaCare Health Partners</div>
+      <div class="card-subtitle">Fund I | Healthcare Services | 30 clinics | Steady | $280M EBITDA implied</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li><span class="flag">NC-026 (Marietta) and NC-027 (Augusta):</span> RehabWorks acquisitions report electricity = 0 and gas = 82,000 / 74,000 therms. Median NovaCare clinic gas is ~5,800 therms. <strong>Almost certainly kWh entered in therms column during data migration.</strong></li>
+        <li><span class="warn">NC-010 (Baltimore):</span> 312,000 kWh is 3.5x the NovaCare median — needs confirmation (could be a larger facility)</li>
+        <li>Electricity total: questionnaire ~2,580,000 kWh vs CSV ~2,780,000 kWh (discrepancy may be related to unit errors above)</li>
+        <li>~1/3 of clinics rely on landlord-provided energy allocations</li>
+        <li>Regulated medical waste tracked (Stericycle at 22 clinics). Waste segregation program reduced regulated waste ~15% in 2024.</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>63% Grade A (utility bills), 37% Grade C (landlord data)</li>
+        <li>CFO (Michael Park) submitted — appropriate authority</li>
+        <li>4 PhysioFirst clinics on aging HVAC — $280K replacement budgeted 2026</li>
+        <li>Insurance trending up ~8%/yr</li>
+      </ul>
+      <p><strong>The RehabWorks data migration error must be fixed before any emissions calculation.</strong> If we use the gas column as-is, NovaCare's Scope 1 emissions would be massively overstated. Otherwise adequate data for a clinic network.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TRIDENT -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Trident IT Solutions</div>
+      <div class="card-subtitle">Fund I | Technology Services | 8 offices | Above plan | $24.9M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li><span class="ok">Most mature climate posture in the portfolio.</span> Only portco to calculate emissions (~595 mt CO2e). Evaluating science-based targets for Q3 2026.</li>
+        <li>Cleveland SOC (452K kWh) is 42% of total electricity — 24/7 server room with R-410A (25 lbs)</li>
+        <li>Cloud migration reduced on-prem servers 40% — inherent emissions reduction</li>
+        <li>Minor electricity discrepancy: questionnaire 1,126K vs CSV 1,080K kWh (4%)</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>25% Grade A (2 facilities), 75% Grade B (6 accounting exports)</li>
+        <li>CFO (Sarah Lin) submitted — appropriate authority</li>
+        <li>Healthcare (~24%) and financial services (~18%) clients include ESG in vendor reviews</li>
+      </ul>
+      <p><strong>Low-risk, straightforward footprint.</strong> Trident needs the least work of any portco. Already calculating emissions. Main action: formalize what they've started and convert accounting exports to utility bill data where possible.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CLEARVIEW -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Clearview Environmental Services</div>
+      <div class="card-subtitle">Fund II | Environmental Services | 12 facilities | On plan | $31.2M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li>EHS Director (Greg Marshall) co-authored — highest-quality submission process</li>
+        <li>Fleet is the dominant emissions source: 100,500 gal diesel + 55,400 gal gasoline (~85 vehicles)</li>
+        <li><span class="warn">Fleet idle time averages 18%</span> of engine-on hours (GPS telematics available but no formal reduction program)</li>
+        <li>Labs account for ~65% of electricity (24/7 fume hoods, GC-MS instruments)</li>
+        <li><span class="warn">Credibility gap:</span> environmental services company that cannot demonstrate its own footprint. Lost scoring points on 5 ESG-scored RFPs in 2025. ~$2-3M revenue at risk.</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>75% Grade A (utility bills), 25% Grade B (fleet logs)</li>
+        <li>No major data discrepancies identified</li>
+        <li>~40% of revenue from refinery/petrochemical clients — long-term transition question</li>
+      </ul>
+      <p><strong>Good data, strong submission quality.</strong> The most complex emissions profile in the portfolio (labs + fleet + field ops), but well-documented. The credibility gap is a strategic issue, not a data quality issue — Clearview has the data to calculate their footprint, they just haven't done it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PATRIOT -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Patriot Staffing Solutions</div>
+      <div class="card-subtitle">Fund II | Business Services | 26 branches | Below plan | $23.8M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-1">1</span><span class="score-label lbl-1">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li><span class="flag">96% of data is landlord-reported (Grade C).</span> Only Indianapolis HQ has a direct utility account.</li>
+        <li><span class="flag">2 facilities (Evansville, Rockford) report 0/0</span> — utilities bundled in lease</li>
+        <li><span class="warn">PSS-006 (Louisville):</span> branch closed August 2025, but full-year estimate provided — should be prorated</li>
+        <li><span class="flag">76,700 gallons gasoline for 8 vehicles</span> (~9,600 gal/vehicle) — anomalously high, needs validation</li>
+        <li>Shuttle bus fuel at 3 locations (Fort Wayne, Grand Rapids, Milwaukee) is unknown — vendor invoices per-route, not per-gallon</li>
+        <li>Submitted by VP of Risk (Scott Henderson) — not typical authority. <span class="warn">Late submission</span> (Mar 23, missed Mar 15 deadline)</li>
+        <li><span class="warn">8 heat-related incidents in 2025</span> among temp workers (3 recordable, $47K workers' comp)</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>4% Grade A (1 facility), 4% Grade B (1 fleet log), 92% Grade C (24 landlord estimates)</li>
+        <li>Per Northwood protocol: &gt;20% proxy data = <span class="flag">Grade C portco</span></li>
+        <li>2 branches in FEMA flood zones (Memphis, Jackson) — landlord flood insurance unconfirmed</li>
+        <li>$505K in weather-related revenue deferrals in 2025</li>
+      </ul>
+      <p><strong>Lowest data reliability in the portfolio.</strong> Company is in margin crisis (below plan, workers' comp above trend). Climate/sustainability is explicitly not a priority. The heat stress / temp worker safety angle is the most actionable climate-business connection — it ties directly to the workers' comp problem on the watch list. Data remediation requires requesting direct utility accounts or landlord breakouts for at least the top 10 branches.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PINNACLE -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Pinnacle Testing &amp; Inspection</div>
+      <div class="card-subtitle">Fund II | Industrial Technology | 10 facilities | Integration | $20.1M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li>Fleet fuel is the dominant emissions source: 143K gal diesel + 59.8K gal gasoline across 32+ vehicles</li>
+        <li>Fleet telematics on all vehicles but <span class="warn">not formally used for fuel optimization</span></li>
+        <li><span class="flag">$3.2M revenue deferral in 2025 from 2 hurricane events</span> (14 combined shutdown days)</li>
+        <li>Pasadena equipment depot in storm surge zone</li>
+        <li>Insurance premiums increasing 12%/yr ($1.18M in 2022 to $1.66M in 2025)</li>
+        <li>BCP is informal, single-person dependent (Paul Stevens)</li>
+        <li>CEO + COO co-submitted — Dec 12, 2025</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>10% Grade A (1 utility bill), 90% Grade B (8 accounting exports + 1 fleet log)</li>
+        <li>3 major refinery clients (~$18M revenue) sent ESG questionnaires in 2025</li>
+        <li>~40% revenue from refinery/petrochemical — energy transition exposure</li>
+      </ul>
+      <p><strong>Adequate for baseline but fleet data needs granularity for optimization.</strong> The hurricane / physical risk exposure is the headline story — 8 of 9 facilities within 60 miles of Gulf Coast. Insurance cost trajectory and BCP formalization are higher priority than emissions reduction.</p>
+    </div>
+  </div>
+</div>
+
+<!-- HARVEST RIDGE -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Harvest Ridge Foods</div>
+      <div class="card-subtitle">Fund II | Food &amp; Agriculture | 5 plants | 100-day | $22.8M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li><span class="warn">CSV formatting error:</span> HRF-002 through HRF-004 have an extra comma (19 vs 18 columns), causing data_source to parse incorrectly. Actual source is utility_bill for all.</li>
+        <li><span class="warn">Annualized from 9 months:</span> closed April 2025, data is April-December extrapolated to 12 months</li>
+        <li>Highest electricity in portfolio: ~8.5M kWh (Nashville plant alone: 3.2M kWh). Highest gas: ~329K therms.</li>
+        <li><span class="flag">R-404A refrigerant at Nashville:</span> 120 lbs, 17-year-old unit, GWP ~3,922x, had 15 lb leak in June 2025</li>
+        <li><span class="warn">Food waste volumes not tracked</span> — only disposal cost (~$185K/yr)</li>
+        <li>Water dependency: ~28M gal/yr. Bowling Green had 3 water pressure drops in summer 2025 (~$280K lost).</li>
+        <li><strong>Strongest customer ESG pressure:</strong> 3 of top 10 customers (~$34M revenue) require Scope 3 supplier data. One CPG brand mandatory by 2027.</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>100% Grade A (all utility bills — when CSV parsing is corrected)</li>
+        <li>CFO (Thomas Nguyen) submitted, CEO reviewed — appropriate authority</li>
+        <li>Combined energy cost ~$1.9M/yr — material opex line item</li>
+        <li>Multiple identified efficiency projects ($95K LED, $50K compressed air, $120K boiler economizers)</li>
+      </ul>
+      <p><strong>Good data from a high-intensity operation.</strong> Fix the CSV parsing error, then data is calculation-ready. The R-404A leak and water stress issues are the priority risks. Customer ESG pressure is the most commercially urgent in the portfolio — $34M revenue dependent on Scope 3 data they cannot yet provide.</p>
+    </div>
+  </div>
+</div>
+
+<!-- RIDGELINE -->
+<div class="portco-card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Ridgeline Property Services</div>
+      <div class="card-subtitle">Fund II | Real Estate Services | 6 offices | 100-day | $17.4M EBITDA</div>
+    </div>
+    <div class="card-scores">
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Relev.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Transp.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card-section">
+      <h4>Key Issues</h4>
+      <ul>
+        <li><span class="flag">Las Vegas office (opened Jan 2025) missing from facility database entirely</span></li>
+        <li><span class="warn">CSV formatting error:</span> RPS-001 through RPS-003 have extra comma — fleet gasoline shifts to data_source column</li>
+        <li>5 of 6 regional offices on gross leases — electricity figures are estimates, not metered</li>
+        <li><span class="flag">Scope boundary question:</span> Corporate footprint is small (~363K kWh, 40 vehicles). But Ridgeline manages ~18M sq ft of commercial property (~285M kWh, ~3.2M therms, ~480M gallons water). Is the managed portfolio Scope 3?</li>
+        <li>Denver and Phoenix considering Building Performance Standards — 12-14M managed sq ft could be subject</li>
+        <li>Cannot currently provide ENERGY STAR benchmarking clients are requesting (~$1-2M new mandate revenue opportunity)</li>
+        <li>Insurance costs up ~9%/yr (Western US wildfire/hail market)</li>
+      </ul>
+    </div>
+    <div class="card-section">
+      <h4>Source Quality &amp; Assessment</h4>
+      <ul>
+        <li>17% Grade A (Denver HQ utility bill), 83% Grade C (regional offices estimated from sq ft)</li>
+        <li>CFO (Christine Albright) submitted — appropriate authority</li>
+        <li>40 fleet vehicles consuming ~27,200 total gallons (gas + diesel)</li>
+      </ul>
+      <p><strong>The scope question is more important than the data quality question.</strong> Ridgeline's direct footprint is the smallest in the portfolio. But the managed portfolio (~285M kWh) dwarfs every other portco combined. This is a strategic scoping decision: if managed properties are in-scope (likely Scope 3 Cat 13), Ridgeline goes from the smallest to the largest climate story in the portfolio. CFO explicitly asks for guidance on this.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CROSS-PORTFOLIO DATA SOURCE SUMMARY -->
+<h2><span class="tnum">Cross-Portfolio</span> Data Source Distribution (Transparency Inputs)</h2>
+<p class="section-note">Source grade distribution drives each portco's Transparency score. Protocol rating per Northwood Climate Data Collection Protocol.</p>
+<table>
+<thead><tr><th>Portco</th><th>Facilities</th><th style="text-align:center">Grade A<br>(Utility Bill)</th><th style="text-align:center">Grade B<br>(Acct/Fleet)</th><th style="text-align:center">Grade C<br>(Landlord/Est)</th><th style="text-align:center">N/A</th><th>Protocol Rating</th></tr></thead>
+<tbody>
+<tr class="priority"><td><strong>Meridian ***</strong></td><td>16</td><td style="text-align:center">12 (75%)</td><td style="text-align:center">4 (25%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade A portco</span></td></tr>
+<tr class="priority"><td><strong>Sterling ***</strong></td><td>3</td><td style="text-align:center">3 (100%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade A portco</span></td></tr>
+<tr class="priority"><td><strong>Keystone ***</strong></td><td>22</td><td style="text-align:center">7 (32%)</td><td style="text-align:center">0</td><td style="text-align:center">14 (64%)</td><td style="text-align:center">1 (4%)</td><td><span class="flag">Grade C portco</span></td></tr>
+<tr><td>NovaCare</td><td>30</td><td style="text-align:center">19 (63%)</td><td style="text-align:center">0</td><td style="text-align:center">11 (37%)</td><td style="text-align:center">0</td><td><span class="warn">Grade B portco</span></td></tr>
+<tr><td>Trident</td><td>8</td><td style="text-align:center">2 (25%)</td><td style="text-align:center">6 (75%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade B portco</span></td></tr>
+<tr><td>Clearview</td><td>12</td><td style="text-align:center">9 (75%)</td><td style="text-align:center">3 (25%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade A portco</span></td></tr>
+<tr><td>Patriot</td><td>26</td><td style="text-align:center">1 (4%)</td><td style="text-align:center">1 (4%)</td><td style="text-align:center">24 (92%)</td><td style="text-align:center">0</td><td><span class="flag">Grade C portco</span></td></tr>
+<tr><td>Pinnacle</td><td>10</td><td style="text-align:center">1 (10%)</td><td style="text-align:center">9 (90%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade B portco</span></td></tr>
+<tr><td>Harvest Ridge</td><td>5</td><td style="text-align:center">5 (100%)</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td><span class="ok">Grade A portco</span></td></tr>
+<tr><td>Ridgeline</td><td>6</td><td style="text-align:center">1 (17%)</td><td style="text-align:center">0</td><td style="text-align:center">5 (83%)</td><td style="text-align:center">0</td><td><span class="flag">Grade C portco</span></td></tr>
+<tr style="border-top:2px solid var(--accent);font-weight:700">
+  <td>Portfolio Total</td><td>138</td>
+  <td style="text-align:center">60 (43%)</td>
+  <td style="text-align:center">23 (17%)</td>
+  <td style="text-align:center">54 (39%)</td>
+  <td style="text-align:center">1 (1%)</td>
+  <td><span class="warn">Grade B portfolio</span></td>
+</tr>
+</tbody>
+</table>
+
+<!-- CROSS-SOURCE DISCREPANCY LOG -->
+<h2><span class="tnum">Cross-Source</span> Discrepancy Log</h2>
+<p class="section-note">Issues found by comparing the submitted CSV against the corresponding climate questionnaire for each portco.</p>
+<table>
+<thead><tr><th>#</th><th>Portco</th><th>Severity</th><th>Finding</th><th>CSV Value</th><th>Questionnaire Value</th><th>Likely Explanation</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="flag">NovaCare</td><td><span class="flag">CRITICAL</span></td><td>NC-026 (Marietta) and NC-027 (Augusta) — electricity = 0, gas = 82,000 / 74,000 therms</td><td>82,000 / 74,000 therms</td><td>Not itemized</td><td>kWh values entered in therms column during RehabWorks data migration</td></tr>
+<tr><td>2</td><td class="flag">Sterling</td><td><span class="flag">HIGH</span></td><td>Akron vs Elyria energy allocation differs — totals match but facility split is wrong</td><td>Akron: 4,185K kWh / 178.5K therms<br>Elyria: 2,815K kWh / 121K therms</td><td>Akron: ~4,850K kWh / ~235K therms<br>Elyria: ~2,100K kWh / ~72K therms</td><td>Questionnaire from COO memory; CSV from actual bills. CSV is likely correct.</td></tr>
+<tr><td>3</td><td class="warn">Meridian</td><td><span class="warn">MEDIUM</span></td><td>Questionnaire says no fleet; CSV has fleet gasoline at 5 facilities</td><td>3,200 gal gasoline across 5 locations</td><td>"Meridian does not operate a vehicle fleet"</td><td>Management/sales vehicles not classified as "fleet" by CFO</td></tr>
+<tr><td>4</td><td class="warn">Meridian</td><td><span class="warn">MEDIUM</span></td><td>Natural gas total discrepancy</td><td>~129,800 therms</td><td>~142,300 therms</td><td>9.6% variance — may reflect different allocation for shared-building meters</td></tr>
+<tr><td>5</td><td class="warn">Sterling</td><td><span class="warn">MEDIUM</span></td><td>R-410A reported differently</td><td>Only Elyria: 15 lbs</td><td>Akron: 15 lbs, Elyria: 20 lbs, Canton: 10 lbs</td><td>CSV may only capture systems with recharges; questionnaire lists all installed</td></tr>
+<tr><td>6</td><td class="warn">Keystone</td><td><span class="warn">MEDIUM</span></td><td>Electricity total discrepancy</td><td>~1,312,000 kWh</td><td>~1,494,000 kWh</td><td>12% variance — likely rounding in estimates. 6 facilities use formulaic 33K kWh.</td></tr>
+<tr><td>7</td><td class="warn">Harvest Ridge</td><td><span class="warn">MEDIUM</span></td><td>CSV formatting error: 3 rows have extra comma</td><td>HRF-002, HRF-003, HRF-004</td><td>N/A</td><td>Data_source field misaligned. Actual source: utility_bill for all.</td></tr>
+<tr><td>8</td><td class="warn">Ridgeline</td><td><span class="warn">MEDIUM</span></td><td>CSV formatting error: 3 rows have extra comma</td><td>RPS-001, RPS-002, RPS-003</td><td>N/A</td><td>Fleet gasoline shifts into data_source column. Parsing must handle this.</td></tr>
+<tr><td>9</td><td class="warn">Ridgeline</td><td><span class="warn">MEDIUM</span></td><td>Las Vegas office opened Jan 2025 but missing from both CSV and template</td><td>Not present</td><td>7 offices reported in questionnaire</td><td>Facility database not updated after Las Vegas opening</td></tr>
+<tr><td>10</td><td class="warn">Patriot</td><td><span class="warn">MEDIUM</span></td><td>76,700 gal gasoline for 8 branch manager vehicles</td><td>76,700 gal</td><td>~76,700 gal</td><td>~9,600 gal/vehicle is anomalously high (typical sedan: 600-800 gal/yr). Needs validation.</td></tr>
+<tr><td>11</td><td>Patriot</td><td><span class="warn">LOW</span></td><td>Louisville branch (PSS-006) closed Aug 2025 but full-year landlord estimate provided</td><td>46,000 kWh / 3,800 therms (full year)</td><td>Closed Aug 2025</td><td>Should be prorated to ~8 months or excluded</td></tr>
+<tr><td>12</td><td>NovaCare</td><td><span class="warn">LOW</span></td><td>NC-010 (Baltimore) electricity = 312K kWh vs median ~88K</td><td>312,000 kWh</td><td>Not flagged</td><td>May be a larger facility — needs confirmation, not necessarily an error</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- SCOPE 3 SCREENING SECTION -->
+<!-- ============================================================ -->
+
+<div id="scope3" style="margin-top:64px;padding-top:32px;border-top:3px solid var(--accent);"></div>
+
+<h1 style="margin-bottom:4px;">Scope 3 <span>Screening Assessment</span></h1>
+<p class="subtitle">GHG Protocol Corporate Value Chain (Scope 3) Standard — 15-category materiality screening across Northwood portfolio</p>
+
+<p style="font-size:13px;color:var(--text);margin-bottom:12px;max-width:960px;">The GHG Protocol Scope 3 Standard defines 15 categories of indirect emissions across a company's value chain. This screening assesses which categories are <strong>material</strong> for each portco, and whether the data currently available is sufficient to quantify them. Per our proposal, Scope 3 is a screening exercise — we identify where the data exists and where the gaps are, but full Scope 3 calculation is a stretch goal dependent on data quality.</p>
+
+<div style="margin:16px 0 24px 0;">
+  <strong style="color:var(--text);font-size:13px;">Screening Legend:</strong>
+  <div style="display:flex;gap:16px;font-size:12px;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:20px;height:14px;background:#2d7a3a;border-radius:3px;vertical-align:middle;margin-right:4px;"></span> Data available — calculable</span>
+    <span><span style="display:inline-block;width:20px;height:14px;background:#a08830;border-radius:3px;vertical-align:middle;margin-right:4px;"></span> Partial data — estimate possible</span>
+    <span><span style="display:inline-block;width:20px;height:14px;background:#c06030;border-radius:3px;vertical-align:middle;margin-right:4px;"></span> No data — material gap</span>
+    <span><span style="display:inline-block;width:20px;height:14px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;vertical-align:middle;margin-right:4px;"></span> Not applicable</span>
+  </div>
+</div>
+
+<!-- SCOPE 3 MATERIALITY MATRIX -->
+<h2><span class="tnum">Materiality</span> Screening Matrix</h2>
+<p class="section-note">Columns abbreviated: MBS = Meridian, SPM = Sterling, KBH = Keystone, NC = NovaCare, TIT = Trident, CES = Clearview, PSS = Patriot, PTI = Pinnacle, HRF = Harvest Ridge, RPS = Ridgeline</p>
+
+<table style="font-size:12px;">
+<thead>
+<tr>
+  <th style="width:30px">#</th>
+  <th style="min-width:200px">Scope 3 Category</th>
+  <th style="text-align:center;width:55px" class="priority">MBS***</th>
+  <th style="text-align:center;width:55px" class="priority">SPM***</th>
+  <th style="text-align:center;width:55px" class="priority">KBH***</th>
+  <th style="text-align:center;width:55px">NC</th>
+  <th style="text-align:center;width:55px">TIT</th>
+  <th style="text-align:center;width:55px">CES</th>
+  <th style="text-align:center;width:55px">PSS</th>
+  <th style="text-align:center;width:55px">PTI</th>
+  <th style="text-align:center;width:55px">HRF</th>
+  <th style="text-align:center;width:55px">RPS</th>
+</tr>
+</thead>
+<tbody>
+<!-- UPSTREAM -->
+<tr style="background:var(--surface);"><td colspan="12" style="font-weight:700;color:var(--accent);padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Upstream Categories</td></tr>
+
+<tr>
+  <td>1</td><td>Purchased Goods &amp; Services</td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.15);"><span style="color:var(--red);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+</tr>
+<tr>
+  <td>2</td><td>Capital Goods</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>3</td><td>Fuel- &amp; Energy-Related Activities</td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(45,122,58,0.12);"><span style="color:#4caf50;">Calc</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+</tr>
+<tr>
+  <td>4</td><td>Upstream Transportation &amp; Distribution</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>5</td><td>Waste Generated in Operations</td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.15);"><span style="color:var(--red);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+</tr>
+<tr>
+  <td>6</td><td>Business Travel</td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+</tr>
+<tr>
+  <td>7</td><td>Employee Commuting</td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.15);"><span style="color:var(--red);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(160,136,48,0.12);"><span style="color:var(--yellow);">Partial</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.15);"><span style="color:var(--red);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+</tr>
+<tr>
+  <td>8</td><td>Upstream Leased Assets</td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1/2</span></td>
+</tr>
+
+<!-- DOWNSTREAM -->
+<tr style="background:var(--surface);"><td colspan="12" style="font-weight:700;color:var(--accent);padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Downstream Categories</td></tr>
+
+<tr>
+  <td>9</td><td>Downstream Transportation &amp; Distribution</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">In S1</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>10</td><td>Processing of Sold Products</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>11</td><td>Use of Sold Products</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>12</td><td>End-of-Life Treatment of Sold Products</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">Immat.</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.12);"><span style="color:var(--orange);">Gap</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>13</td><td>Downstream Leased Assets</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center;background:rgba(192,96,48,0.18);"><span style="color:var(--red);font-weight:700;">GAP</span></td>
+</tr>
+<tr>
+  <td>14</td><td>Franchises</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+<tr>
+  <td>15</td><td>Investments</td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+  <td style="text-align:center"><span style="color:var(--none);">N/A</span></td>
+</tr>
+</tbody>
+</table>
+
+<!-- MATERIAL SCOPE 3 CATEGORIES — GHG PRINCIPLE RATINGS -->
+<h2><span class="tnum">Material</span> Scope 3 Categories — GHG Principle Ratings</h2>
+<p class="section-note">Detailed assessment of the Scope 3 categories screened as material or partially material. Rated on the five GHG Protocol principles.</p>
+
+<table>
+<thead><tr><th>Category</th><th>Portco(s)</th><th>Why Material</th><th style="text-align:center" title="Relevance">R</th><th style="text-align:center" title="Completeness">C</th><th style="text-align:center" title="Consistency">Co</th><th style="text-align:center" title="Transparency">T</th><th style="text-align:center" title="Accuracy">A</th><th>Data Available</th><th>Gap / Action</th></tr></thead>
+<tbody>
+
+<tr>
+  <td><strong>Cat 1:<br>Purchased Goods</strong></td>
+  <td class="desc">HRF (critical),<br>SPM, CES</td>
+  <td class="desc">Harvest Ridge: raw ingredients are the dominant input. Sterling: metals and tooling. Clearview: lab chemicals and equipment.</td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td class="desc">No spend-based or activity data. Procurement data not in environment.</td>
+  <td class="desc"><span class="flag">Request AP/procurement spend by category for top-3 suppliers from each portco. Spend-based method is the feasible approach.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 3:<br>Fuel &amp; Energy</strong></td>
+  <td class="desc">All 10 portcos</td>
+  <td class="desc">T&amp;D losses and upstream fuel production emissions. Calculated as a standard uplift factor on Scope 1+2 data.</td>
+  <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td class="desc">Derivable from Scope 1+2 consumption data using EPA/eGRID T&amp;D loss factors.</td>
+  <td class="desc"><span class="ok">No additional data needed. Calculate once Scope 1+2 baseline is complete.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 5:<br>Waste</strong></td>
+  <td class="desc">HRF (critical),<br>SPM, NC, CES</td>
+  <td class="desc">Harvest Ridge: organic waste volumes unknown (only $185K/yr disposal cost tracked). Sterling: 180 tons chips, 12K gal coolant, 3.5K gal chemicals. NovaCare: regulated medical waste. Clearview: hazardous waste.</td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td class="desc">Qualitative descriptions for SPM, NC, CES. HRF tracks cost but not volume. No waste manifests in environment.</td>
+  <td class="desc"><span class="warn">Request waste hauler invoices / manifests from SPM (Clean Harbors), NC (Stericycle), HRF (disposal vendor). Volume data enables calculation; cost-only data allows spend-based estimate.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 6:<br>Business Travel</strong></td>
+  <td class="desc">All 10 portcos</td>
+  <td class="desc">No portco provided business travel data. Likely material for management teams traveling between sites and to client locations.</td>
+  <td style="text-align:center"><span class="score score-3" style="width:24px;height:24px;font-size:12px;">3</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td class="desc">Zero data across entire portfolio. No corporate travel spend or booking data.</td>
+  <td class="desc"><span class="warn">Request T&amp;E spend reports or corporate card summaries from portco finance teams. Airline/hotel booking data from travel management company if one exists.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 7:<br>Employee Commuting</strong></td>
+  <td class="desc">KBH (critical),<br>PSS (critical),<br>all others</td>
+  <td class="desc"><strong>Keystone:</strong> 35% of therapy is in-home — therapists drive personal vehicles to patient homes. This is a material, operationally-linked emission source. <strong>Patriot:</strong> shuttle buses at 3 locations, temp worker transportation to job sites. <strong>All others:</strong> standard commuting.</td>
+  <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td class="desc">Keystone COO flagged in-home therapy mileage but has no data. Patriot shuttle bus fuel unknown (vendor contract). Trident notes hybrid/remote workforce. No commute surveys anywhere.</td>
+  <td class="desc"><span class="flag">Priority for KBH: request therapist mileage reimbursement records or scheduling system data (visits x avg distance). For PSS: request shuttle vendor fuel invoices. For others: employee commute survey or zip-code-based estimate.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 9:<br>Downstream Transport</strong></td>
+  <td class="desc">HRF</td>
+  <td class="desc">Harvest Ridge ships finished food products to retailers/distributors via third-party carriers. Distribution network integration is a 100-day plan workstream.</td>
+  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td class="desc">No third-party logistics data. 6 owned trucks (Scope 1) cover regional delivery; long-haul is outsourced.</td>
+  <td class="desc"><span class="warn">Request freight invoices from top 3 logistics providers. Ton-miles data enables calculation.</span></td>
+</tr>
+
+<tr>
+  <td><strong>Cat 13:<br>Downstream Leased Assets</strong></td>
+  <td class="desc" style="color:var(--red);font-weight:700;">RPS (critical)</td>
+  <td class="desc"><strong>Ridgeline manages ~18M sq ft of commercial property</strong> with ~285M kWh electricity, ~3.2M therms gas, ~480M gal water. This is orders of magnitude larger than Ridgeline's corporate footprint (~363K kWh). If classified as Scope 3 Cat 13, Ridgeline goes from the smallest to the largest climate story in the portfolio. CFO explicitly asked for scoping guidance.</td>
+  <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td class="desc">CFO provided summary-level managed portfolio data (285M kWh, 3.2M therms, 480M gal water). Not facility-level. Denver and Phoenix BPS regulations may force this into scope regardless.</td>
+  <td class="desc"><span class="flag">Scoping decision required. If in-scope: request property-level ENERGY STAR benchmarking data from top 20 managed properties. This is also a revenue opportunity — clients are asking for exactly this capability.</span></td>
+</tr>
+
+</tbody>
+</table>
+
+<!-- SCOPE 3 SUMMARY -->
+<h2><span class="tnum">Scope 3</span> Portfolio Summary</h2>
+
+<table style="max-width:800px;">
+<thead><tr><th>Status</th><th>Categories</th><th>Count</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><span style="color:#4caf50;font-weight:700;">Calculable now</span></td><td>Cat 3 (Fuel &amp; energy-related activities)</td><td>1</td><td>Derive from Scope 1+2 baseline using standard T&amp;D loss factors</td></tr>
+<tr><td><span style="color:var(--yellow);font-weight:700;">Partial data</span></td><td>Cat 5 (Waste) for SPM, NC, CES</td><td>1</td><td>Qualitative data exists; request manifests for quantification</td></tr>
+<tr><td><span style="color:var(--orange);font-weight:700;">Material gap</span></td><td>Cat 1 (Purchased goods), Cat 6 (Business travel), Cat 7 (Employee commuting), Cat 9 (Downstream transport — HRF), Cat 10 (Processing — SPM, HRF), Cat 13 (Downstream leased — RPS)</td><td>6</td><td>Data request to portcos required. Prioritize Cat 7 for KBH/PSS and Cat 13 for RPS.</td></tr>
+<tr><td><span style="color:var(--none);">Not applicable / immaterial</span></td><td>Cat 2 (most portcos), Cat 4 (most), Cat 8, Cat 11, Cat 12, Cat 14, Cat 15</td><td>7</td><td>No action. Document exclusion rationale per GHG Protocol.</td></tr>
+</tbody>
+</table>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:24px 0;">
+<h3 style="color:var(--accent);margin-bottom:8px;font-size:14px;">Three Scope 3 Stories That Matter</h3>
+<ol style="font-size:13px;color:var(--text-muted);padding-left:20px;">
+<li style="margin-bottom:8px;"><strong style="color:var(--text);">Keystone — therapist mileage (Cat 7).</strong> 35% of ABA therapy sessions are delivered in patients' homes. Therapists drive personal vehicles. This is operationally inseparable from the service model. Mileage reimbursement records should exist in payroll. This is likely Keystone's single largest emission source after Scope 2 electricity.</li>
+<li style="margin-bottom:8px;"><strong style="color:var(--text);">Ridgeline — managed portfolio (Cat 13).</strong> Corporate footprint: ~363K kWh. Managed portfolio: ~285M kWh. The managed portfolio is ~785x the corporate footprint. Denver and Phoenix are both considering building performance standards. Whether or not we include it in the GHG inventory, LP and regulatory audiences will ask about it.</li>
+<li style="margin-bottom:8px;"><strong style="color:var(--text);">Harvest Ridge — supply chain (Cat 1) + distribution (Cat 9).</strong> Three of HRF's top 10 customers (~$34M revenue) now require Scope 3 supplier data. One CPG brand will make it mandatory for contract renewal by 2027. HRF's Scope 3 isn't just a reporting exercise — it's a customer retention issue.</li>
+</ol>
+</div>
+
+<div class="footer">
+  Kith Consulting &bull; Northwood Capital Partners Engagement &bull; Step 1, Deliverable 2 &bull; March 26, 2026
+</div>
+
+</body>
+</html>
