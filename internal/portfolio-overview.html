@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Northwood Capital — Portfolio Overview</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222633;
+    --border: #2e3347;
+    --text: #e4e6ed;
+    --text-dim: #8b90a5;
+    --accent: #4f8cff;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --blue: #60a5fa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Header */
+  .header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .header .subtitle { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+  .header .confidential { background: #2a1a1a; color: var(--red); font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 500; letter-spacing: 0.5px; }
+
+  /* Fund summary cards */
+  .fund-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .fund-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .fund-card .fund-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px; }
+  .fund-card .fund-name { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .fund-card .fund-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-left: 8px; font-weight: 500; }
+  .badge-harvest { background: #1a2e1a; color: var(--green); }
+  .badge-deploy { background: #1a2040; color: var(--accent); }
+  .fund-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  .fund-metric .fm-value { font-size: 20px; font-weight: 700; color: var(--text); }
+  .fund-metric .fm-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Filters */
+  .filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Section headers */
+  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-title .count { background: var(--surface2); padding: 2px 8px; border-radius: 4px; font-size: 12px; color: var(--text-dim); font-weight: 400; }
+
+  /* Company cards */
+  .company-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 40px; }
+  .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s; cursor: pointer; }
+  .company-card:hover { border-color: #4a4f66; }
+  .company-card.expanded .card-detail { display: block; }
+
+  .card-header { padding: 16px 20px; display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr; gap: 16px; align-items: center; }
+  .card-company { display: flex; flex-direction: column; gap: 2px; }
+  .card-company .co-name { font-size: 15px; font-weight: 600; }
+  .card-company .co-sector { font-size: 12px; color: var(--text-dim); }
+  .card-company .co-fund { font-size: 11px; color: var(--accent); margin-top: 2px; }
+
+  .card-metric { text-align: right; }
+  .card-metric .cm-value { font-size: 15px; font-weight: 600; }
+  .card-metric .cm-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .rag { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .rag-green { background: var(--green); box-shadow: 0 0 6px rgba(52,211,153,0.4); }
+  .rag-amber { background: var(--amber); box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+  .rag-red { background: var(--red); box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+
+  .status-pill { font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
+  .status-green { background: #0d2818; color: var(--green); }
+  .status-amber { background: #2a2210; color: var(--amber); }
+  .status-red { background: #2a1515; color: var(--red); }
+
+  /* Expanded detail */
+  .card-detail { display: none; border-top: 1px solid var(--border); padding: 20px 24px; background: var(--surface2); }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .detail-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 10px; }
+  .detail-section p { font-size: 13px; color: var(--text); margin-bottom: 8px; line-height: 1.6; }
+  .detail-section .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .detail-section .detail-row:last-child { border-bottom: none; }
+  .detail-section .detail-row .dr-label { color: var(--text-dim); }
+  .detail-section .detail-row .dr-value { font-weight: 500; }
+
+  .growth-bar-container { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .growth-bar { height: 6px; border-radius: 3px; background: var(--accent); opacity: 0.8; min-width: 2px; }
+
+  /* Realized exits */
+  .exit-card { opacity: 0.7; }
+  .exit-card:hover { opacity: 1; }
+
+  /* Column header */
+  .col-header { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr; gap: 16px; padding: 8px 20px; margin-bottom: 4px; }
+  .col-header span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); text-align: right; }
+  .col-header span:first-child { text-align: left; }
+
+  /* Aggregate bar */
+  .agg-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; margin-top: 8px; display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr; gap: 16px; align-items: center; }
+  .agg-bar .agg-label { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+  .agg-bar .card-metric .cm-value { color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .fund-row { grid-template-columns: 1fr; }
+    .card-header, .col-header, .agg-bar { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+    .card-header > :nth-child(5), .card-header > :nth-child(6),
+    .col-header > :nth-child(5), .col-header > :nth-child(6),
+    .agg-bar > :nth-child(5), .agg-bar > :nth-child(6) { display: none; }
+    .card-header > :nth-child(7), .col-header > :nth-child(7), .agg-bar > :nth-child(7) { display: none; }
+  }
+  @media (max-width: 700px) {
+    .card-header, .col-header, .agg-bar { grid-template-columns: 1fr 1fr 1fr; }
+    .card-header > :nth-child(4), .col-header > :nth-child(4), .agg-bar > :nth-child(4) { display: none; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Tooltip */
+  .tip { position: relative; }
+  .tip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; }
+
+  /* Search */
+  .search-box { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 13px; width: 220px; outline: none; }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text-dim); }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Northwood Capital Partners — Portfolio Overview</h1>
+      <div class="subtitle">Internal reference &middot; As of January 31, 2026</div>
+    </div>
+    <div class="confidential">CONFIDENTIAL — INTERNAL USE ONLY</div>
+  </div>
+
+  <!-- Fund Summary -->
+  <div class="fund-row">
+    <div class="fund-card">
+      <div class="fund-label">Firm Overview</div>
+      <div class="fund-name">Northwood Capital Partners</div>
+      <div class="fund-metrics">
+        <div class="fund-metric"><div class="fm-value">$1.75B</div><div class="fm-label">Total AUM</div></div>
+        <div class="fund-metric"><div class="fm-value">10</div><div class="fm-label">Active Companies</div></div>
+        <div class="fund-metric"><div class="fm-value">$1.72B</div><div class="fm-label">Aggregate Revenue</div></div>
+        <div class="fund-metric"><div class="fm-value">$260.9M</div><div class="fm-label">Aggregate EBITDA</div></div>
+        <div class="fund-metric"><div class="fm-value">~4,025</div><div class="fm-label">Total Employees</div></div>
+        <div class="fund-metric"><div class="fm-value">2</div><div class="fm-label">Realized Exits</div></div>
+      </div>
+    </div>
+    <div class="fund-card">
+      <div class="fund-label">Fund I</div>
+      <div class="fund-name">Fund I, L.P. <span class="fund-badge badge-harvest">Harvesting</span></div>
+      <div class="fund-metrics">
+        <div class="fund-metric"><div class="fm-value">$650M</div><div class="fm-label">Committed Capital</div></div>
+        <div class="fund-metric"><div class="fm-value">2.2x / 18%</div><div class="fm-label">Net MOIC / IRR</div></div>
+        <div class="fund-metric"><div class="fm-value">4</div><div class="fm-label">Active Companies</div></div>
+        <div class="fund-metric"><div class="fm-value">2017</div><div class="fm-label">Vintage</div></div>
+        <div class="fund-metric"><div class="fm-value">$710M</div><div class="fm-label">Aggregate Revenue</div></div>
+        <div class="fund-metric"><div class="fm-value">1.2x</div><div class="fm-label">Avg Leverage</div></div>
+      </div>
+    </div>
+    <div class="fund-card">
+      <div class="fund-label">Fund II</div>
+      <div class="fund-name">Fund II, L.P. <span class="fund-badge badge-deploy">Deploying</span></div>
+      <div class="fund-metrics">
+        <div class="fund-metric"><div class="fm-value">$1.1B</div><div class="fm-label">Committed Capital</div></div>
+        <div class="fund-metric"><div class="fm-value">1.1x / 7%</div><div class="fm-label">Net MOIC / IRR</div></div>
+        <div class="fund-metric"><div class="fm-value">6</div><div class="fm-label">Active Companies</div></div>
+        <div class="fund-metric"><div class="fm-value">2022</div><div class="fm-label">Vintage</div></div>
+        <div class="fund-metric"><div class="fm-value">$1.0B</div><div class="fm-label">Aggregate Revenue</div></div>
+        <div class="fund-metric"><div class="fm-value">2.8x</div><div class="fm-label">Avg Leverage</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="fund-i">Fund I</button>
+      <button class="filter-btn" data-filter="fund-ii">Fund II</button>
+      <button class="filter-btn" data-filter="realized">Realized Exits</button>
+    </div>
+    <input class="search-box" type="text" placeholder="Search companies..." id="search">
+  </div>
+
+  <!-- Column headers -->
+  <div class="col-header">
+    <span>Company</span>
+    <span>Revenue</span>
+    <span>EBITDA</span>
+    <span>Margin</span>
+    <span>Leverage</span>
+    <span>MOIC</span>
+    <span>Status</span>
+  </div>
+
+  <!-- Active Portfolio -->
+  <div class="company-grid" id="portfolio">
+
+    <!-- FUND I COMPANIES -->
+
+    <div class="company-card" data-fund="fund-i" data-search="meridian business solutions bpo staffing business services">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Meridian Business Solutions</span>
+          <span class="co-sector">Business Services — BPO / Managed Staffing</span>
+          <span class="co-fund">Fund I &middot; Mar 2018 &middot; 580 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$225M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$38.3M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">17.0%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">1.1x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">3.0x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-green">Exit Prep</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Managed staffing services using a temp-to-perm model for mid-market clients. Revenue from placing temporary workers at a markup over their pay rate, plus BPO services (back-office process outsourcing) and cross-selling into healthcare and tech verticals. 145 customers; top customer is 11% of revenue.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Add-on driven platform build (Workforce Plus, TalentBridge). Cross-sell across service lines. Margin improvement through scale and operational efficiency. Preparing for H2 2026 exit process — sell-side advisor selection underway.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$130.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+73%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$21.7M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+76%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">16.7%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$195.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$363.9M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$117.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~22%</span></div>
+            <div class="detail-row"><span class="dr-label">Employees at Entry</span><span class="dr-value">340</span></div>
+            <div class="detail-row"><span class="dr-label">Debt Paydown</span><span class="dr-value">$36.0M</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-i" data-search="novacare health partners healthcare physical therapy rehabilitation">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">NovaCare Health Partners</span>
+          <span class="co-sector">Healthcare Services — Outpatient PT / Rehab</span>
+          <span class="co-fund">Fund I &middot; Sep 2019 &middot; 385 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$175M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$28.0M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">16.0%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">1.4x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">2.7x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-green">Steady</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Multi-site outpatient rehabilitation and physical therapy. Revenue from patient visit fees paid by insurance (contracted rates with major payors). 28 clinic locations (18 original + 10 from add-ons). 85 licensed physical therapists + assistants.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Clinic network expansion via de novo openings and add-ons. Service line diversification (sports medicine, post-surgical). Therapist retention is the binding constraint — wage inflation compressing margins from 17.0% at entry to 16.0% current.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$105.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+67%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$17.8M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+57%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">17.0%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$160.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$280.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$96.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~18%</span></div>
+            <div class="detail-row"><span class="dr-label">Clinics</span><span class="dr-value">28 locations</span></div>
+            <div class="detail-row"><span class="dr-label">Debt Paydown</span><span class="dr-value">$26.0M</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-i" data-search="sterling precision manufacturing industrial aerospace defense cnc machining">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Sterling Precision Manufacturing</span>
+          <span class="co-sector">Industrial Technology — Precision Machining / A&D</span>
+          <span class="co-fund">Fund I &middot; Jun 2020 &middot; 420 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$168M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$30.2M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">18.0%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">1.1x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">2.9x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-green">Strong</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Precision CNC machining of complex components in aluminum, titanium, and specialty alloys for aerospace and defense end markets. Revenue from manufacturing fees on component orders — mix of project-based and recurring defense program contracts. Defense revenue is 38% of total (up from 25% at entry). AS9100 and ITAR certified (significant barrier to entry).</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Defense revenue mix shift provides recurring, counter-cyclical earnings. Phase II automation driving margin improvement. Add-on (MicroTech Tooling) extended capability set. Reshoring tailwinds benefiting order pipeline. Apprenticeship program addressing skilled labor shortage.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$110.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+53%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$18.8M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+61%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">17.1%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$150.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$271.8M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$90.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~24%</span></div>
+            <div class="detail-row"><span class="dr-label">Defense Mix</span><span class="dr-value">38% of revenue</span></div>
+            <div class="detail-row"><span class="dr-label">Customers</span><span class="dr-value">65</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-i" data-search="trident it solutions technology managed services cybersecurity mssp">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Trident IT Solutions</span>
+          <span class="co-sector">Technology Services — IT Managed Services / Cyber</span>
+          <span class="co-fund">Fund I &middot; Jan 2021 &middot; 305 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$142M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$24.9M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">17.5%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">1.1x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">2.8x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-green">Above Plan</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Mid-market IT managed services and cybersecurity (MSSP). Revenue from recurring managed services contracts (85%+ of revenue) — help desk, infrastructure management, cloud migration, and managed security (SOC). Net revenue retention of 112% indicates strong upsell within existing customers. 118 customers; top customer 8% of revenue.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Cybersecurity is the fastest-growing segment (30% YoY via ShieldPoint Cyber add-on). Two add-ons completed (ShieldPoint Cyber Q3 2022, NetWatch MSP Q2 2023). Platform modernization underway. High recurring revenue and strong NRR create compounding growth dynamics.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$85.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+67%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$16.1M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+55%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">18.9%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$145.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$261.5M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$87.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~20%</span></div>
+            <div class="detail-row"><span class="dr-label">Recurring Revenue</span><span class="dr-value">85%+</span></div>
+            <div class="detail-row"><span class="dr-label">NRR</span><span class="dr-value">112%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fund I Subtotal -->
+    <div class="agg-bar" data-fund="fund-i">
+      <div class="agg-label">Fund I Subtotal (4 companies, ~1,690 employees)</div>
+      <div class="card-metric"><div class="cm-value">$710M</div><div class="cm-label">Revenue</div></div>
+      <div class="card-metric"><div class="cm-value">$121.4M</div><div class="cm-label">EBITDA</div></div>
+      <div class="card-metric"><div class="cm-value">17.1%</div><div class="cm-label">Margin</div></div>
+      <div class="card-metric"><div class="cm-value">1.2x</div><div class="cm-label">Leverage</div></div>
+      <div class="card-metric"><div class="cm-value" style="color:var(--green)">2.8x</div><div class="cm-label">Avg MOIC</div></div>
+      <div></div>
+    </div>
+
+    <!-- FUND II COMPANIES -->
+
+    <div class="company-card" data-fund="fund-ii" data-search="clearview environmental services remediation pfas testing compliance" style="margin-top:24px">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">ClearView Environmental</span>
+          <span class="co-sector">Environmental Services — Remediation / Testing</span>
+          <span class="co-fund">Fund II &middot; Mar 2023 &middot; 505 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$195M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$31.2M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">16.0%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">2.5x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.6x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-green">On Plan</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Environmental remediation, testing, and compliance consulting. Mix of project-based remediation work and recurring testing contracts (~35% of revenue). PFAS testing and remediation is ~18% of revenue and growing — driven by tightening EPA regulations. $42M project backlog provides ~5 months of revenue visibility. Midwest and Mid-Atlantic with Southeast expansion.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Regulatory tailwinds (PFAS, environmental compliance mandates) driving organic growth. One add-on completed (GreenTech Testing, Q1 2024). Active add-on pipeline to expand geographic reach and testing capabilities. Shifting revenue mix toward higher-margin recurring testing contracts.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$160.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+22%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$25.6M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+22%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$230.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$296.4M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$138.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~15%</span></div>
+            <div class="detail-row"><span class="dr-label">PFAS Revenue</span><span class="dr-value">~18%</span></div>
+            <div class="detail-row"><span class="dr-label">Project Backlog</span><span class="dr-value">$42M</span></div>
+            <div class="detail-row"><span class="dr-label">Recurring Revenue</span><span class="dr-value">~35%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-ii" data-search="patriot staffing solutions light industrial temp workers business services">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Patriot Staffing Solutions</span>
+          <span class="co-sector">Business Services — Light Industrial Staffing</span>
+          <span class="co-fund">Fund II &middot; Aug 2023 &middot; 185 staff + ~3,200 temps</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$310M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$23.8M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--amber)">7.7%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">2.6x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.3x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-red">Below Plan</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Light industrial staffing: places temporary workers in manufacturing, warehousing, and logistics roles. Revenue = bill rate charged to clients minus pay rate to workers, at a typical 20-30% markup. ~3,200 temp workers on assignment across 6 states (Midwest/Southeast). 92 customer accounts.</p>
+            <h4 style="margin-top:16px">Key Risks & Watch Items</h4>
+            <p style="color:var(--amber)"><strong>Below plan.</strong> EBITDA margin compressed from 7.9% at entry to 7.7%. Wage inflation for temp workers (+8% YoY) outpacing bill rate increases (+5%). Workers' comp costs trending 15% above plan. Management implementing bill rate renegotiation program across top 50 clients in Q1-Q2 2026. Add-on pipeline paused until margins stabilize. Board review March 19.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$285.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+9%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$22.5M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+6%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">7.9%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$180.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$202.3M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$108.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~10%</span></div>
+            <div class="detail-row"><span class="dr-label">Temps on Assignment</span><span class="dr-value">~3,200</span></div>
+            <div class="detail-row"><span class="dr-label">Target Margin</span><span class="dr-value">8.0%+ by Q4 2026</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-ii" data-search="keystone behavioral health aba therapy autism healthcare">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Keystone Behavioral Health</span>
+          <span class="co-sector">Healthcare Services — ABA Therapy</span>
+          <span class="co-fund">Fund II &middot; Feb 2024 &middot; 340 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$138M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$24.2M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">17.5%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">3.1x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.4x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-amber">100-Day</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Multi-state Applied Behavior Analysis (ABA) therapy for children with autism spectrum disorder. Revenue from insurance reimbursement per patient session at contracted rates. 1,250 active patients. Clinical staff includes 85 BCBAs and 180 RBTs. Payor mix: BlueCross 28%, UnitedHealth 22%, Medicaid 18%.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Strong demand fundamentals (growing ASD diagnosis rates, insurance mandate expansion). BCBA recruitment is the binding constraint — competitive labor market. Building clinical infrastructure and therapist pipeline. First add-on targets under evaluation.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$125.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+10%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$22.2M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+9%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">17.8%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$200.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$242.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$120.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">~12%</span></div>
+            <div class="detail-row"><span class="dr-label">Active Patients</span><span class="dr-value">1,250</span></div>
+            <div class="detail-row"><span class="dr-label">BCBAs</span><span class="dr-value">85</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-ii" data-search="pinnacle testing inspection ndt non-destructive industrial">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Pinnacle Testing & Inspection</span>
+          <span class="co-sector">Industrial Technology — NDT / Inspection</span>
+          <span class="co-fund">Fund II &middot; Oct 2024 &middot; 275 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$115M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$20.1M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">17.5%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">2.9x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.2x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-amber">Integration</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Non-destructive testing (NDT) and industrial inspection services. Revenue from project-based inspection fees and recurring maintenance contracts (currently 35%, targeting 50% by year 3). Inspects pipelines, refineries, bridges, and industrial infrastructure. Level III NDE certifications are a significant barrier to entry. 95 customers across Gulf Coast and Southeast.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>4 months post-close. Management transition (founder exit, COO promoted to President) proceeding smoothly. ERP assessment and safety audit complete. Technician pipeline program launching. Shift toward recurring maintenance contracts. Infrastructure aging and regulatory requirements drive demand.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$108.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+6%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$19.4M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+4%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">18.0%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$155.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$170.9M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$93.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Gross IRR</span><span class="dr-value">N/M</span></div>
+            <div class="detail-row"><span class="dr-label">Recurring Rev Target</span><span class="dr-value">50% by Yr 3</span></div>
+            <div class="detail-row"><span class="dr-label">Customers</span><span class="dr-value">95</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-ii" data-search="harvest ridge foods food agriculture co-packing manufacturing contract">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Harvest Ridge Foods</span>
+          <span class="co-sector">Food & Agriculture — Contract Mfg / Co-Packing</span>
+          <span class="co-fund">Fund II &middot; Apr 2025 &middot; 335 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$152M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$22.8M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">15.0%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">2.9x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.2x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-amber">100-Day</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Contract food manufacturer and co-packer. Revenue from fixed + variable fees per unit produced. Specializes in shelf-stable sauces, dressings, marinades, and condiments — including clean-label and organic formulations. 4 production plants + 1 R&D facility (Nashville, Murfreesboro, Bowling Green, Chattanooga). Capacity utilization ~72% (expansion room). Customers: regional/national CPG brands, grocery private label, emerging DTC food brands. Top 5 customers are ~45% of revenue (concentration risk).</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Supply chain optimization and procurement consolidation. Cold chain infrastructure assessment underway. Commodity price exposure is a key risk. Capacity utilization improvement is the primary margin lever. Chattanooga plant integration is complex.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$145.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+5%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$21.9M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+4%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">15.1%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$175.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$193.8M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$105.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Capacity Utilization</span><span class="dr-value">~72%</span></div>
+            <div class="detail-row"><span class="dr-label">Production Plants</span><span class="dr-value">4 + 1 R&D</span></div>
+            <div class="detail-row"><span class="dr-label">Top 5 Concentration</span><span class="dr-value">~45%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card" data-fund="fund-ii" data-search="ridgeline property services real estate commercial management building">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name">Ridgeline Property Services</span>
+          <span class="co-sector">Real Estate Services — Commercial Property Mgmt</span>
+          <span class="co-fund">Fund II &middot; Jul 2025 &middot; 295 employees</span>
+        </div>
+        <div class="card-metric"><div class="cm-value">$95M</div><div class="cm-label">Revenue</div></div>
+        <div class="card-metric"><div class="cm-value">$17.4M</div><div class="cm-label">EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value">18.3%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value">3.0x</div><div class="cm-label">Leverage</div></div>
+        <div class="card-metric"><div class="cm-value">1.2x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill status-amber">100-Day</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>How They Make Money</h4>
+            <p>Commercial property management and building services. Revenue mix: property management fees (60%, recurring), project management (25%), building services/maintenance (15%). Manages ~18M sq ft across Mountain West/Southwest (Denver HQ, Phoenix, Salt Lake, Boise, Las Vegas). Client base: REITs 35%, PE real estate funds 25%, family offices 20%, corporate 20%. Client retention 92%; avg contract tenure 4.2 years.</p>
+            <h4 style="margin-top:16px">Value Creation Thesis</h4>
+            <p>Technology platform integration and service line standardization. Regional management buildout for geographic expansion. High client retention provides stable base. CRE cycle exposure is a key risk factor. 7 months post-close, executing 100-day plan.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Key Metrics</h4>
+            <div class="detail-row"><span class="dr-label">Entry Revenue</span><span class="dr-value">$92.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Revenue Growth</span><span class="dr-value">+3%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA</span><span class="dr-value">$16.9M</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+3%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry Margin</span><span class="dr-value">18.4%</span></div>
+            <div class="detail-row"><span class="dr-label">Entry EV</span><span class="dr-value">$135.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Implied EV</span><span class="dr-value">$147.9M</span></div>
+            <div class="detail-row"><span class="dr-label">Equity Invested</span><span class="dr-value">$81.0M</span></div>
+            <div class="detail-row"><span class="dr-label">Managed Sq Ft</span><span class="dr-value">~18M</span></div>
+            <div class="detail-row"><span class="dr-label">Client Retention</span><span class="dr-value">92%</span></div>
+            <div class="detail-row"><span class="dr-label">Recurring Revenue</span><span class="dr-value">~60%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fund II Subtotal -->
+    <div class="agg-bar" data-fund="fund-ii">
+      <div class="agg-label">Fund II Subtotal (6 companies, ~2,335 employees)</div>
+      <div class="card-metric"><div class="cm-value">$1.0B</div><div class="cm-label">Revenue</div></div>
+      <div class="card-metric"><div class="cm-value">$139.5M</div><div class="cm-label">EBITDA</div></div>
+      <div class="card-metric"><div class="cm-value">13.9%</div><div class="cm-label">Margin</div></div>
+      <div class="card-metric"><div class="cm-value">2.8x</div><div class="cm-label">Leverage</div></div>
+      <div class="card-metric"><div class="cm-value">1.3x</div><div class="cm-label">Avg MOIC</div></div>
+      <div></div>
+    </div>
+
+    <!-- REALIZED EXITS -->
+
+    <div class="company-card exit-card" data-fund="realized" data-search="atlas compliance group regulatory consulting business services" style="margin-top:24px">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name" style="color:var(--text-dim)">Atlas Compliance Group</span>
+          <span class="co-sector">Business Services — Regulatory Compliance</span>
+          <span class="co-fund">Fund I &middot; Q2 2017 &ndash; Q4 2021 &middot; REALIZED</span>
+        </div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">$160M</div><div class="cm-label">Exit Revenue</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">$25.9M</div><div class="cm-label">Exit EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">16.2%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">11.0x</div><div class="cm-label">Exit Multiple</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">3.0x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill" style="background:#1a2e1a;color:var(--green)">~35% IRR</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>Business Model</h4>
+            <p>Regulatory compliance consulting. Recurring, non-cyclical revenue from healthcare, environmental, and financial services compliance. Expanded from 2 to 6 offices. 4 add-on acquisitions built national footprint and created financial services compliance vertical (24% of exit revenue).</p>
+            <h4 style="margin-top:16px">Exit Summary</h4>
+            <p>Sold to strategic buyer (large professional services firm) at 11.0x LTM EBITDA. 80% EBITDA growth (entry $14.4M to exit $25.9M). Multiple expansion from 9.0x to 11.0x. Realized $187.2M on $62.4M invested.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Value Creation Bridge</h4>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA / Multiple</span><span class="dr-value">$14.4M / 9.0x</span></div>
+            <div class="detail-row"><span class="dr-label">Exit EBITDA / Multiple</span><span class="dr-value">$25.9M / 11.0x</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth Contribution</span><span class="dr-value">Primary driver</span></div>
+            <div class="detail-row"><span class="dr-label">Multiple Expansion</span><span class="dr-value">9.0x to 11.0x</span></div>
+            <div class="detail-row"><span class="dr-label">Add-ons</span><span class="dr-value">4 completed</span></div>
+            <div class="detail-row"><span class="dr-label">Employees at Exit</span><span class="dr-value">~520</span></div>
+            <div class="detail-row"><span class="dr-label">Hold Period</span><span class="dr-value">4.5 years</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="company-card exit-card" data-fund="realized" data-search="proserv facilities management building services commercial">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-company">
+          <span class="co-name" style="color:var(--text-dim)">ProServ Facilities Management</span>
+          <span class="co-sector">Business Services — Commercial Facilities Mgmt</span>
+          <span class="co-fund">Fund I &middot; Q4 2018 &ndash; Q2 2023 &middot; REALIZED</span>
+        </div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">$155M</div><div class="cm-label">Exit Revenue</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">$22.2M</div><div class="cm-label">Exit EBITDA</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">14.3%</div><div class="cm-label">Margin</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--text-dim)">10.0x</div><div class="cm-label">Exit Multiple</div></div>
+        <div class="card-metric"><div class="cm-value" style="color:var(--green)">2.5x</div><div class="cm-label">Gross MOIC</div></div>
+        <div><span class="status-pill" style="background:#1a2e1a;color:var(--green)">~22% IRR</span></div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>Business Model</h4>
+            <p>Commercial facilities management and building services. Recurring essential services revenue. Grew organically from 5 to 12 offices (no add-ons). Developed proprietary ProServ Connect technology platform ($4M investment) for dispatch optimization and client reporting. Procurement consolidation drove $2.5M in annual savings.</p>
+            <h4 style="margin-top:16px">Exit Summary</h4>
+            <p>Sold to financial sponsor (large-cap PE firm) at 10.0x LTM EBITDA. 48% EBITDA growth (entry $15.0M to exit $22.2M). Multiple expansion from 8.0x to 10.0x. Realized $144.0M on $57.6M invested. Balanced returns: ~0.8x from EBITDA growth, ~0.8x from multiple expansion, ~0.4x from deleveraging.</p>
+          </div>
+          <div class="detail-section">
+            <h4>Value Creation Bridge</h4>
+            <div class="detail-row"><span class="dr-label">Entry EBITDA / Multiple</span><span class="dr-value">$15.0M / 8.0x</span></div>
+            <div class="detail-row"><span class="dr-label">Exit EBITDA / Multiple</span><span class="dr-value">$22.2M / 10.0x</span></div>
+            <div class="detail-row"><span class="dr-label">EBITDA Growth</span><span class="dr-value">+48%</span></div>
+            <div class="detail-row"><span class="dr-label">Multiple Expansion</span><span class="dr-value">8.0x to 10.0x</span></div>
+            <div class="detail-row"><span class="dr-label">Add-ons</span><span class="dr-value">0 (purely organic)</span></div>
+            <div class="detail-row"><span class="dr-label">Employees at Exit</span><span class="dr-value">~580</span></div>
+            <div class="detail-row"><span class="dr-label">Hold Period</span><span class="dr-value">4.5 years</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Combined Total -->
+    <div class="agg-bar" data-fund="all" style="margin-top:16px; border-color: var(--accent);">
+      <div class="agg-label" style="color:var(--accent)">Combined Active Portfolio (10 companies)</div>
+      <div class="card-metric"><div class="cm-value">$1.72B</div><div class="cm-label">Revenue</div></div>
+      <div class="card-metric"><div class="cm-value">$260.9M</div><div class="cm-label">EBITDA</div></div>
+      <div class="card-metric"><div class="cm-value">15.2%</div><div class="cm-label">Margin</div></div>
+      <div class="card-metric"><div class="cm-value">$530M</div><div class="cm-label">Total Debt</div></div>
+      <div class="card-metric"><div class="cm-value">$1.04B</div><div class="cm-label">Equity Invested</div></div>
+      <div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Toggle card expansion
+  function toggleCard(header) {
+    header.closest('.company-card').classList.toggle('expanded');
+  }
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.company-card, .agg-bar').forEach(card => {
+        const fund = card.dataset.fund;
+        if (filter === 'all') {
+          card.style.display = '';
+        } else if (fund === filter) {
+          card.style.display = '';
+        } else if (filter === 'fund-i' && fund === 'all') {
+          card.style.display = 'none';
+        } else if (filter === 'fund-ii' && fund === 'all') {
+          card.style.display = 'none';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.company-card').forEach(card => {
+      const text = card.dataset.search || '';
+      const name = card.querySelector('.co-name')?.textContent.toLowerCase() || '';
+      card.style.display = (text.includes(q) || name.includes(q) || q === '') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
