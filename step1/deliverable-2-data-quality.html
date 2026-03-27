@@ -188,181 +188,165 @@
 <!-- SCORING KEY -->
 <h2><span class="tnum">Scoring</span> Methodology</h2>
 
-<p style="font-size:13px;color:var(--text);margin-bottom:12px;max-width:960px;">This assessment evaluates data readiness for GHG Protocol-aligned Scope 1+2 emissions calculation across Northwood's portfolio. Each portco is scored on the <strong>five GHG Protocol accounting and reporting principles</strong> (GHG Protocol Corporate Standard, Chapter 1), then given a composite overall score.</p>
-<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;max-width:960px;">The assessment is based on cross-referencing two primary sources &mdash; the submitted carbon CSV (139 facility-level energy rows) and each portco's climate questionnaire (narrative responses) &mdash; against each other and against the standards defined in Northwood's Climate Data Collection Protocol (Q1 2026).</p>
+<p style="font-size:13px;color:var(--text);margin-bottom:12px;max-width:960px;">This assessment evaluates data readiness for Scope 1+2 emissions calculation across Northwood's portfolio using the firm's own <strong>Climate Data Collection Protocol (Q1 2026)</strong>. The protocol defines a three-tier data source hierarchy, portco-level quality thresholds, and facility-level grading rules that we apply consistently to every submission.</p>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;max-width:960px;">The assessment cross-references two primary sources &mdash; the submitted carbon CSV (139 facility-level energy rows) and each portco's climate questionnaire (narrative responses) &mdash; to validate internal consistency and flag discrepancies.</p>
 
-<h3 style="margin-top:20px;">The Five GHG Protocol Principles — Applied to Data Readiness</h3>
+<h3 style="margin-top:20px;">Northwood Data Source Hierarchy</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;max-width:960px;">Per the protocol, every data point in a portco submission carries a quality grade based on its source. Grade C data triggers a note in the portco's emissions baseline and board materials.</p>
 <table style="max-width:960px;">
-<thead><tr><th style="width:130px;">Principle</th><th>GHG Protocol Definition</th><th>How We Assess It Here</th></tr></thead>
+<thead><tr><th style="width:160px;">Source Grade</th><th>Definition</th><th>Estimation Required?</th></tr></thead>
 <tbody>
 <tr>
-  <td><strong>Relevance</strong></td>
-  <td class="desc">The GHG inventory appropriately reflects the emissions of the company and serves the decision-making needs of users.</td>
-  <td class="desc">Does the data cover the correct organizational and operational boundary? Are all material emission sources within scope identified? Are there boundary ambiguities (e.g., leased vs. owned facilities, managed properties, employee commuting) that would change the emissions profile if resolved differently?</td>
+  <td><span class="sdot bar-a" style="width:10px;height:10px;margin-right:6px;"></span> <strong>Grade A — Utility Bills</strong></td>
+  <td class="desc">Actual consumption data from utility invoices. Metered, time-stamped, verifiable. Preferred source.</td>
+  <td class="desc">No estimation required.</td>
 </tr>
 <tr>
-  <td><strong>Completeness</strong></td>
-  <td class="desc">Account for and report on all GHG emission sources and activities within the chosen inventory boundary.</td>
-  <td class="desc">Are all known facilities represented with data? Are all applicable energy types (electricity, gas, fuel, refrigerants, fleet) captured? Are there zero-value, blank, or partial-year entries? Does the submission cover 12 full months?</td>
+  <td><span class="sdot bar-b" style="width:10px;height:10px;margin-right:6px;"></span> <strong>Grade B — Accounting Estimates</strong></td>
+  <td class="desc">Derived from financial records (e.g., natural gas expense &divide; average rate per therm). Includes fleet telematics, fuel card statements, and accounting exports.</td>
+  <td class="desc">Acceptable with methodology documentation.</td>
 </tr>
 <tr>
-  <td><strong>Consistency</strong></td>
-  <td class="desc">Use consistent methodologies to allow for meaningful performance tracking of emissions over time.</td>
-  <td class="desc">Do the CSV and questionnaire agree on totals? Are facility-level allocations internally consistent? Are units, time periods, and boundary definitions applied uniformly across facilities? Are there contradictions between what the narrative says and what the data shows?</td>
+  <td><span class="sdot bar-c" style="width:10px;height:10px;margin-right:6px;"></span> <strong>Grade C — Landlord / Proxy Data</strong></td>
+  <td class="desc">Landlord-reported building averages, EPA benchmarks applied to square footage, or industry intensity factors applied to revenue. Last resort.</td>
+  <td class="desc">Must be flagged as proxy data in all downstream analysis.</td>
 </tr>
 <tr>
-  <td><strong>Transparency</strong></td>
-  <td class="desc">Address all relevant issues in a factual and coherent manner, based on a clear audit trail.</td>
-  <td class="desc">Can each data point be traced to a documented source? Distribution of data source grades per Northwood's protocol: <strong>Grade A</strong> (utility bills), <strong>Grade B</strong> (accounting exports / fleet logs), <strong>Grade C</strong> (landlord data / proxy estimates). Are assumptions, estimation methods, and data limitations disclosed? Per Northwood protocol: &gt;80% A = Grade A portco; &gt;80% A+B = Grade B; &gt;20% C = Grade C.</td>
-</tr>
-<tr>
-  <td><strong>Accuracy</strong></td>
-  <td class="desc">Ensure quantification is systematically neither over nor under actual emissions, and that uncertainties are reduced as far as practicable.</td>
-  <td class="desc">Are there detectable errors — unit mismatches, data entry mistakes, outliers, or values that would produce materially incorrect emissions if used as-is? Would the data, if fed directly into an emissions calculation, produce a result that is defensible?</td>
+  <td><span class="sdot bar-na" style="width:10px;height:10px;margin-right:6px;"></span> <strong>N/A — No Data</strong></td>
+  <td class="desc">Facility exists in the operational boundary but no consumption data of any kind is available.</td>
+  <td class="desc">Cannot calculate. Must resolve before baseline.</td>
 </tr>
 </tbody>
 </table>
 
-<h3 style="margin-top:24px;">Composite Overall Score</h3>
-<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;max-width:960px;">The overall score is a weighted judgment across all five principles. Accuracy issues that would corrupt an emissions calculation (e.g., unit swaps, data entry errors) are weighted most heavily because they produce misleading results. Completeness and transparency gaps are weighted next because they determine whether a baseline is defensible. Relevance and consistency issues are weighted lower when they represent scoping decisions rather than data errors &mdash; they need resolution but don't block calculation.</p>
+<h3 style="margin-top:24px;">Portco-Level Data Quality Rating</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;max-width:960px;">The protocol aggregates facility-level source grades into a portco-level quality rating. This rating appears in the emissions baseline, board materials, and GP dashboard. LP disclosures reference the portfolio-level data quality distribution.</p>
+<table style="max-width:700px;">
+<thead><tr><th>Portco Rating</th><th>Threshold</th><th>Implication</th></tr></thead>
+<tbody>
+<tr><td><span class="ok" style="font-size:14px;">&#9679;</span> <strong>Grade A Portco</strong></td><td>&gt;80% of emissions calculated from Grade A (utility bill) data</td><td class="desc">Baseline is defensible. Suitable for LP disclosure and exit materials.</td></tr>
+<tr><td><span class="warn" style="font-size:14px;">&#9679;</span> <strong>Grade B Portco</strong></td><td>&gt;80% from Grade A + Grade B combined</td><td class="desc">Baseline is usable with documented methodology notes. Upgrade path to A is clear.</td></tr>
+<tr><td><span class="flag" style="font-size:14px;">&#9679;</span> <strong>Grade C Portco</strong></td><td>&gt;20% of emissions rely on Grade C (proxy/landlord) data</td><td class="desc">Baseline carries quality caveat. Flagged in board materials. Data improvement plan required.</td></tr>
+</tbody>
+</table>
 
-<h3 style="margin-top:20px;">Score Scale</h3>
+<h3 style="margin-top:24px;">Readiness Score</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;max-width:960px;">In addition to the protocol rating, we assign a 1&ndash;5 readiness score that factors in source grade distribution, cross-source consistency, detected errors, boundary clarity, and temporal coverage.</p>
 <table style="max-width:700px;">
 <thead><tr><th>Score</th><th>Label</th><th>Meaning</th></tr></thead>
 <tbody>
-<tr><td><span class="score score-5">5</span></td><td>Excellent</td><td class="desc">Principle fully satisfied. Data is calculation-ready with no remediation needed.</td></tr>
-<tr><td><span class="score score-4">4</span></td><td>Good</td><td class="desc">Principle largely satisfied. Minor gaps or discrepancies that do not block analysis.</td></tr>
-<tr><td><span class="score score-3">3</span></td><td>Adequate</td><td class="desc">Principle partially satisfied. Notable gaps or concerns. Results should carry a data quality caveat.</td></tr>
-<tr><td><span class="score score-2">2</span></td><td>Poor</td><td class="desc">Principle not adequately met. Remediation required before reliable calculation. Follow-up data request likely needed.</td></tr>
-<tr><td><span class="score score-1">1</span></td><td>Critical</td><td class="desc">Principle violated. Major errors or gaps that block analysis entirely or would produce misleading results.</td></tr>
+<tr><td><span class="score score-5">5</span></td><td>Calculation-Ready</td><td class="desc">Grade A portco with no cross-source discrepancies. Data can go directly into emissions calculation.</td></tr>
+<tr><td><span class="score score-4">4</span></td><td>Minor Remediation</td><td class="desc">Grade A or B portco with minor issues (formatting, small discrepancies). Fixable internally.</td></tr>
+<tr><td><span class="score score-3">3</span></td><td>Moderate Remediation</td><td class="desc">Grade B portco or data with notable gaps. Baseline possible with caveats. Follow-up data request likely needed.</td></tr>
+<tr><td><span class="score score-2">2</span></td><td>Significant Remediation</td><td class="desc">Grade C portco or data with material errors. Baseline unreliable without additional data from portco.</td></tr>
+<tr><td><span class="score score-1">1</span></td><td>Not Calculable</td><td class="desc">Major errors or gaps that block analysis entirely. Data would produce misleading results if used.</td></tr>
 </tbody>
 </table>
 
-<h3 style="margin-top:20px;">Data Source Grading (Transparency Input)</h3>
-<p style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Per Northwood's Climate Data Collection Protocol (Q1 2026), every facility-level data point carries a quality grade based on its source. This grading directly informs the Transparency score:</p>
-<div style="margin:8px 0 8px 0;">
-  <div class="source-legend" style="margin-top:6px;">
-    <span><span class="sdot bar-a"></span> <strong style="color:var(--text);">Grade A</strong> — Utility bills (actual metered consumption from invoices)</span>
-    <span><span class="sdot bar-b"></span> <strong style="color:var(--text);">Grade B</strong> — Accounting exports / fleet logs (derived from financial or telematics records)</span>
-    <span><span class="sdot bar-c"></span> <strong style="color:var(--text);">Grade C</strong> — Landlord data / proxy estimates (lowest confidence; flagged in all downstream analysis)</span>
-    <span><span class="sdot bar-na"></span> <strong style="color:var(--text);">N/A</strong> — No data available</span>
-  </div>
-</div>
-
 <!-- PORTFOLIO SCORECARD -->
 <h2><span class="tnum">Portfolio</span> Scorecard Overview</h2>
-<p class="section-note">R = Relevance, C = Completeness, Co = Consistency, T = Transparency, A = Accuracy</p>
+<p class="section-note">Source grades per Northwood Climate Data Collection Protocol. Readiness score reflects source mix + cross-source validation + error severity.</p>
 <table>
-<thead><tr><th>Portco</th><th>Fund</th><th>Fac.</th><th style="text-align:center" title="Relevance">R</th><th style="text-align:center" title="Completeness">C</th><th style="text-align:center" title="Consistency">Co</th><th style="text-align:center" title="Transparency">T</th><th style="text-align:center" title="Accuracy">A</th><th style="text-align:center">Overall</th><th>Source Mix</th><th>Key Issue</th></tr></thead>
+<thead><tr><th>Portco</th><th>Fund</th><th>Fac.</th><th>Source Grade Mix</th><th style="text-align:center">Grade A %</th><th style="text-align:center">Grade B %</th><th style="text-align:center">Grade C %</th><th style="text-align:center">Protocol Rating</th><th style="text-align:center">Readiness</th><th>Key Issue</th></tr></thead>
 <tbody>
 <tr class="priority">
   <td><strong>Meridian ***</strong></td><td>I</td><td>16</td>
+  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div></td>
+  <td style="text-align:center"><strong>75%</strong></td>
+  <td style="text-align:center">25%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade A</span></td>
   <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div><div class="source-legend"><span>75% A</span><span>25% B</span></div></td>
   <td class="desc"><span class="warn">Fleet boundary unclear — questionnaire says none, CSV has 3,200 gal</span></td>
 </tr>
 <tr class="priority">
   <td><strong>Sterling ***</strong></td><td>I</td><td>3</td>
-  <td style="text-align:center"><span class="score score-5">5</span></td>
-  <td style="text-align:center"><span class="score score-5">5</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-5">5</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div></td>
+  <td style="text-align:center"><strong>100%</strong></td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade A</span></td>
   <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div><div class="source-legend"><span>100% A</span></div></td>
   <td class="desc"><span class="flag">Akron/Elyria allocation swapped between sources (totals match)</span></td>
 </tr>
 <tr class="priority">
   <td><strong>Keystone ***</strong></td><td>II</td><td>22</td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:32%"></div><div class="bar-c" style="width:63%"></div><div class="bar-na" style="width:5%"></div></div></td>
+  <td style="text-align:center">32%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><strong class="flag">63%</strong></td>
+  <td style="text-align:center"><span class="flag">Grade C</span></td>
   <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:32%"></div><div class="bar-c" style="width:63%"></div><div class="bar-na" style="width:5%"></div></div><div class="source-legend"><span>32% A</span><span>63% C</span><span>5% N/A</span></div></td>
   <td class="desc"><span class="flag">27% formulaic estimates, in-home therapy boundary question, no CFO review</span></td>
 </tr>
 <tr>
   <td>NovaCare</td><td>I</td><td>30</td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:63%"></div><div class="bar-c" style="width:37%"></div></div></td>
+  <td style="text-align:center">63%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="warn">37%</span></td>
+  <td style="text-align:center"><span class="warn">Grade B</span></td>
   <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:63%"></div><div class="bar-c" style="width:37%"></div></div><div class="source-legend"><span>63% A</span><span>37% C</span></div></td>
   <td class="desc"><span class="flag">RehabWorks unit swap — kWh entered as therms. Would corrupt Scope 1.</span></td>
 </tr>
 <tr>
   <td>Trident</td><td>I</td><td>8</td>
+  <td><div class="source-bar"><div class="bar-a" style="width:25%"></div><div class="bar-b" style="width:75%"></div></div></td>
+  <td style="text-align:center">25%</td>
+  <td style="text-align:center"><strong>75%</strong></td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade B</span></td>
   <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:25%"></div><div class="bar-b" style="width:75%"></div></div><div class="source-legend"><span>25% A</span><span>75% B</span></div></td>
   <td class="desc"><span class="ok">Most mature — already calculated ~595 mt CO2e, evaluating SBTs</span></td>
 </tr>
 <tr>
   <td>Clearview</td><td>II</td><td>12</td>
+  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div></td>
+  <td style="text-align:center"><strong>75%</strong></td>
+  <td style="text-align:center">25%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade A</span></td>
   <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:75%"></div><div class="bar-b" style="width:25%"></div></div><div class="source-legend"><span>75% A</span><span>25% B</span></div></td>
   <td class="desc"><span class="warn">Fleet dominant (~156K gal). EHS co-authored. Credibility gap.</span></td>
 </tr>
 <tr>
   <td>Patriot</td><td>II</td><td>26</td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:4%"></div><div class="bar-c" style="width:92%"></div><div class="bar-b" style="width:4%"></div></div></td>
+  <td style="text-align:center">4%</td>
+  <td style="text-align:center">4%</td>
+  <td style="text-align:center"><strong class="flag">92%</strong></td>
+  <td style="text-align:center"><span class="flag">Grade C</span></td>
   <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-1">1</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:4%"></div><div class="bar-c" style="width:92%"></div><div class="bar-b" style="width:4%"></div></div><div class="source-legend"><span>4% A</span><span>92% C</span><span>4% B</span></div></td>
   <td class="desc"><span class="flag">96% landlord data. 2 zero facilities. 76K gal / 8 vehicles anomaly.</span></td>
 </tr>
 <tr>
   <td>Pinnacle</td><td>II</td><td>10</td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:10%"></div><div class="bar-b" style="width:90%"></div></div></td>
+  <td style="text-align:center">10%</td>
+  <td style="text-align:center"><strong>90%</strong></td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade B</span></td>
   <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:10%"></div><div class="bar-b" style="width:80%"></div><div class="bar-b" style="width:10%"></div></div><div class="source-legend"><span>10% A</span><span>90% B</span></div></td>
   <td class="desc"><span class="warn">Fleet dominant (~203K gal). $3.2M hurricane revenue deferral.</span></td>
 </tr>
 <tr>
   <td>Harvest Ridge</td><td>II</td><td>5</td>
+  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div></td>
+  <td style="text-align:center"><strong>100%</strong></td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><span class="ok">Grade A</span></td>
   <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-4">4</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:100%"></div></div><div class="source-legend"><span>100% A</span></div></td>
   <td class="desc"><span class="warn">CSV format error (3 rows). 9-month extrapolation. R-404A leak.</span></td>
 </tr>
 <tr>
   <td>Ridgeline</td><td>II</td><td>6</td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
+  <td><div class="source-bar"><div class="bar-a" style="width:17%"></div><div class="bar-c" style="width:83%"></div></div></td>
+  <td style="text-align:center">17%</td>
+  <td style="text-align:center">0%</td>
+  <td style="text-align:center"><strong class="flag">83%</strong></td>
+  <td style="text-align:center"><span class="flag">Grade C</span></td>
   <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-2">2</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td style="text-align:center"><span class="score score-3">3</span></td>
-  <td><div class="source-bar"><div class="bar-a" style="width:17%"></div><div class="bar-c" style="width:83%"></div></div><div class="source-legend"><span>17% A</span><span>83% C</span></div></td>
   <td class="desc"><span class="flag">Las Vegas office missing. 5/6 offices estimated. Scope 3 managed portfolio question.</span></td>
 </tr>
 </tbody>
@@ -379,17 +363,13 @@
       <div class="card-subtitle">Fund I | Business Services | 16 offices | Exit prep | $225M revenue</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade A</span><span class="score-label lbl-4">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
     <div class="card-section">
-      <h4>Completeness</h4>
+      <h4>Source Coverage</h4>
       <ul>
         <li>All 16 facilities reported with electricity and gas data</li>
         <li>4 warm-climate facilities report zero gas (plausible — all-electric cooling)</li>
@@ -425,17 +405,13 @@
       <div class="card-subtitle">Fund I | Industrial Technology | 3 facilities | Strong | $168M revenue</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-5">5</span><span class="score-label lbl-5">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade A</span><span class="score-label lbl-4">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
     <div class="card-section">
-      <h4>Completeness</h4>
+      <h4>Source Coverage</h4>
       <ul>
         <li>All 3 facilities reported with full energy, fuel, refrigerant, and fleet data</li>
         <li>Waste streams described qualitatively (180 tons metal chips, 12K gal coolant, 3.5K gal finishing chemicals)</li>
@@ -475,17 +451,13 @@
       <div class="card-subtitle">Fund II | Healthcare Services | 22 clinics | 100-day | $138M revenue</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:var(--red);">Grade C</span><span class="score-label lbl-2">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
     <div class="card-section">
-      <h4>Completeness</h4>
+      <h4>Source Coverage</h4>
       <ul>
         <li>22 of 22 clinics listed, but quality varies sharply</li>
         <li><span class="flag">6 clinics (27%) use formulaic estimates</span> — all show exactly 33,000 kWh (2,200 sq ft x 15 kWh/sq ft)</li>
@@ -525,12 +497,8 @@
       <div class="card-subtitle">Fund I | Healthcare Services | 30 clinics | Steady | $280M EBITDA implied</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:var(--yellow);">Grade B</span><span class="score-label lbl-3">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -565,12 +533,8 @@
       <div class="card-subtitle">Fund I | Technology Services | 8 offices | Above plan | $24.9M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade B</span><span class="score-label lbl-4">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -603,12 +567,8 @@
       <div class="card-subtitle">Fund II | Environmental Services | 12 facilities | On plan | $31.2M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade A</span><span class="score-label lbl-4">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -642,12 +602,8 @@
       <div class="card-subtitle">Fund II | Business Services | 26 branches | Below plan | $23.8M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-1">1</span><span class="score-label lbl-1">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:var(--red);">Grade C</span><span class="score-label lbl-2">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -684,12 +640,8 @@
       <div class="card-subtitle">Fund II | Industrial Technology | 10 facilities | Integration | $20.1M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade B</span><span class="score-label lbl-3">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -725,12 +677,8 @@
       <div class="card-subtitle">Fund II | Food &amp; Agriculture | 5 plants | 100-day | $22.8M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:#4caf50;">Grade A</span><span class="score-label lbl-4">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-4">4</span><span class="score-label lbl-4">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -767,12 +715,8 @@
       <div class="card-subtitle">Fund II | Real Estate Services | 6 offices | 100-day | $17.4M EBITDA</div>
     </div>
     <div class="card-scores">
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Relev.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Compl.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Consist.</span></div>
-      <div class="card-score-item"><span class="score score-2">2</span><span class="score-label lbl-2">Transp.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Accur.</span></div>
-      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Overall</span></div>
+      <div class="card-score-item"><span class="score font-size:13px;font-weight:700;color:var(--red);">Grade C</span><span class="score-label lbl-2">Protocol</span></div>
+      <div class="card-score-item"><span class="score score-3">3</span><span class="score-label lbl-3">Readiness</span></div>
     </div>
   </div>
   <div class="card-body">
@@ -801,7 +745,7 @@
 </div>
 
 <!-- CROSS-PORTFOLIO DATA SOURCE SUMMARY -->
-<h2><span class="tnum">Cross-Portfolio</span> Data Source Distribution (Transparency Inputs)</h2>
+<h2><span class="tnum">Cross-Portfolio</span> Data Source Distribution</h2>
 <p class="section-note">Source grade distribution drives each portco's Transparency score. Protocol rating per Northwood Climate Data Collection Protocol.</p>
 <table>
 <thead><tr><th>Portco</th><th>Facilities</th><th style="text-align:center">Grade A<br>(Utility Bill)</th><th style="text-align:center">Grade B<br>(Acct/Fleet)</th><th style="text-align:center">Grade C<br>(Landlord/Est)</th><th style="text-align:center">N/A</th><th>Protocol Rating</th></tr></thead>
@@ -1097,21 +1041,18 @@
 </table>
 
 <!-- MATERIAL SCOPE 3 CATEGORIES — GHG PRINCIPLE RATINGS -->
-<h2><span class="tnum">Material</span> Scope 3 Categories — GHG Principle Ratings</h2>
-<p class="section-note">Detailed assessment of the Scope 3 categories screened as material or partially material. Rated on the five GHG Protocol principles.</p>
+<h2><span class="tnum">Material</span> Scope 3 Categories — Data Availability Assessment</h2>
+<p class="section-note">Detailed assessment of the Scope 3 categories screened as material or partially material. Rated on data availability using Northwood’s A/B/C source grading where applicable.</p>
 
 <table>
-<thead><tr><th>Category</th><th>Portco(s)</th><th>Why Material</th><th style="text-align:center" title="Relevance">R</th><th style="text-align:center" title="Completeness">C</th><th style="text-align:center" title="Consistency">Co</th><th style="text-align:center" title="Transparency">T</th><th style="text-align:center" title="Accuracy">A</th><th>Data Available</th><th>Gap / Action</th></tr></thead>
+<thead><tr><th>Category</th><th>Portco(s)</th><th>Why Material</th><th style="text-align:center">Source Grade</th><th style="text-align:center">Readiness</th><th>Data Available</th><th>Gap / Action</th></tr></thead>
 <tbody>
 
 <tr>
   <td><strong>Cat 1:<br>Purchased Goods</strong></td>
   <td class="desc">HRF (critical),<br>SPM, CES</td>
   <td class="desc">Harvest Ridge: raw ingredients are the dominant input. Sterling: metals and tooling. Clearview: lab chemicals and equipment.</td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score flag">N/A</span></td>
   <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
   <td class="desc">No spend-based or activity data. Procurement data not in environment.</td>
   <td class="desc"><span class="flag">Request AP/procurement spend by category for top-3 suppliers from each portco. Spend-based method is the feasible approach.</span></td>
@@ -1121,11 +1062,8 @@
   <td><strong>Cat 3:<br>Fuel &amp; Energy</strong></td>
   <td class="desc">All 10 portcos</td>
   <td class="desc">T&amp;D losses and upstream fuel production emissions. Calculated as a standard uplift factor on Scope 1+2 data.</td>
+  <td style="text-align:center"><span class="score ok">A/B</span></td>
   <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
   <td class="desc">Derivable from Scope 1+2 consumption data using EPA/eGRID T&amp;D loss factors.</td>
   <td class="desc"><span class="ok">No additional data needed. Calculate once Scope 1+2 baseline is complete.</span></td>
 </tr>
@@ -1134,10 +1072,7 @@
   <td><strong>Cat 5:<br>Waste</strong></td>
   <td class="desc">HRF (critical),<br>SPM, NC, CES</td>
   <td class="desc">Harvest Ridge: organic waste volumes unknown (only $185K/yr disposal cost tracked). Sterling: 180 tons chips, 12K gal coolant, 3.5K gal chemicals. NovaCare: regulated medical waste. Clearview: hazardous waste.</td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
-  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
-  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score warn">C</span></td>
   <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
   <td class="desc">Qualitative descriptions for SPM, NC, CES. HRF tracks cost but not volume. No waste manifests in environment.</td>
   <td class="desc"><span class="warn">Request waste hauler invoices / manifests from SPM (Clean Harbors), NC (Stericycle), HRF (disposal vendor). Volume data enables calculation; cost-only data allows spend-based estimate.</span></td>
@@ -1147,10 +1082,7 @@
   <td><strong>Cat 6:<br>Business Travel</strong></td>
   <td class="desc">All 10 portcos</td>
   <td class="desc">No portco provided business travel data. Likely material for management teams traveling between sites and to client locations.</td>
-  <td style="text-align:center"><span class="score score-3" style="width:24px;height:24px;font-size:12px;">3</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score flag">N/A</span></td>
   <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
   <td class="desc">Zero data across entire portfolio. No corporate travel spend or booking data.</td>
   <td class="desc"><span class="warn">Request T&amp;E spend reports or corporate card summaries from portco finance teams. Airline/hotel booking data from travel management company if one exists.</span></td>
@@ -1160,10 +1092,7 @@
   <td><strong>Cat 7:<br>Employee Commuting</strong></td>
   <td class="desc">KBH (critical),<br>PSS (critical),<br>all others</td>
   <td class="desc"><strong>Keystone:</strong> 35% of therapy is in-home — therapists drive personal vehicles to patient homes. This is a material, operationally-linked emission source. <strong>Patriot:</strong> shuttle buses at 3 locations, temp worker transportation to job sites. <strong>All others:</strong> standard commuting.</td>
-  <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score flag">N/A</span></td>
   <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
   <td class="desc">Keystone COO flagged in-home therapy mileage but has no data. Patriot shuttle bus fuel unknown (vendor contract). Trident notes hybrid/remote workforce. No commute surveys anywhere.</td>
   <td class="desc"><span class="flag">Priority for KBH: request therapist mileage reimbursement records or scheduling system data (visits x avg distance). For PSS: request shuttle vendor fuel invoices. For others: employee commute survey or zip-code-based estimate.</span></td>
@@ -1173,10 +1102,7 @@
   <td><strong>Cat 9:<br>Downstream Transport</strong></td>
   <td class="desc">HRF</td>
   <td class="desc">Harvest Ridge ships finished food products to retailers/distributors via third-party carriers. Distribution network integration is a 100-day plan workstream.</td>
-  <td style="text-align:center"><span class="score score-4" style="width:24px;height:24px;font-size:12px;">4</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
+  <td style="text-align:center"><span class="score flag">N/A</span></td>
   <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
   <td class="desc">No third-party logistics data. 6 owned trucks (Scope 1) cover regional delivery; long-haul is outsourced.</td>
   <td class="desc"><span class="warn">Request freight invoices from top 3 logistics providers. Ton-miles data enables calculation.</span></td>
@@ -1186,10 +1112,7 @@
   <td><strong>Cat 13:<br>Downstream Leased Assets</strong></td>
   <td class="desc" style="color:var(--red);font-weight:700;">RPS (critical)</td>
   <td class="desc"><strong>Ridgeline manages ~18M sq ft of commercial property</strong> with ~285M kWh electricity, ~3.2M therms gas, ~480M gal water. This is orders of magnitude larger than Ridgeline's corporate footprint (~363K kWh). If classified as Scope 3 Cat 13, Ridgeline goes from the smallest to the largest climate story in the portfolio. CFO explicitly asked for scoping guidance.</td>
-  <td style="text-align:center"><span class="score score-5" style="width:24px;height:24px;font-size:12px;">5</span></td>
-  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
-  <td style="text-align:center"><span class="score score-1" style="width:24px;height:24px;font-size:12px;">1</span></td>
-  <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
+  <td style="text-align:center"><span class="score warn">C</span></td>
   <td style="text-align:center"><span class="score score-2" style="width:24px;height:24px;font-size:12px;">2</span></td>
   <td class="desc">CFO provided summary-level managed portfolio data (285M kWh, 3.2M therms, 480M gal water). Not facility-level. Denver and Phoenix BPS regulations may force this into scope regardless.</td>
   <td class="desc"><span class="flag">Scoping decision required. If in-scope: request property-level ENERGY STAR benchmarking data from top 20 managed properties. This is also a revenue opportunity — clients are asking for exactly this capability.</span></td>
